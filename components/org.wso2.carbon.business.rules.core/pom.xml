@@ -142,6 +142,15 @@
             <groupId>org.wso2.carbon.analytics-common</groupId>
             <artifactId>org.wso2.carbon.database.query.manager</artifactId>
         </dependency>
+        <!--UI Server-->
+        <dependency>
+            <groupId>org.wso2.carbon.uis</groupId>
+            <artifactId>org.wso2.carbon.uis</artifactId>
+        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.wso2.carbon.analytics-common</groupId>-->
+            <!--<artifactId>org.wso2.carbon.analytics.idp.client</artifactId>-->
+        <!--</dependency>-->
     </dependencies>
 
     <properties>

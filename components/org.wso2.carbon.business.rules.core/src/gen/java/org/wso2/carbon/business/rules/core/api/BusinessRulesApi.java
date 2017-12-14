@@ -50,7 +50,7 @@ import javax.ws.rs.core.Response;
         immediate = true
 )
 
-@Path("/business-rules")
+@Path("/my-business-rules")
 @RequestInterceptor(AuthenticationInterceptor.class)
 @io.swagger.annotations.Api(description = "the business-rules API")
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen",
@@ -58,6 +58,8 @@ import javax.ws.rs.core.Response;
 public class BusinessRulesApi implements Microservice {
     private static final Logger log = LoggerFactory.getLogger(BusinessRulesApi.class);
     private final BusinessRulesApiService delegate = BusinessRulesApiServiceFactory.getBusinessRulesApi();
+
+    public static final String API_CONTEXT_PATH = "/business-rules";
 
     @POST
     @Path("/instances")
@@ -253,12 +255,12 @@ public class BusinessRulesApi implements Microservice {
      *
      * @throws Exception this will be thrown if an issue occurs while executing the activate method
      */
-    @Activate
+    /*@Activate
     protected void start() throws Exception {
         if (log.isDebugEnabled()) {
             log.info("Business rules api service component is activated");
         }
-    }
+    }*/
 
     /**
      * This is the deactivation method of ServiceComponent. This will be called when this component
@@ -266,10 +268,10 @@ public class BusinessRulesApi implements Microservice {
      *
      * @throws Exception this will be thrown if an issue occurs while executing the de-activate method
      */
-    @Deactivate
+    /*@Deactivate
     protected void stop() throws Exception {
         if (log.isDebugEnabled()) {
             log.info("Business rules api service component is deactivated");
         }
-    }
+    }*/
 }
