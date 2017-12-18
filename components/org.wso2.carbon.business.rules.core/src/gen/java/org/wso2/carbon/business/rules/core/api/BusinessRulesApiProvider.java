@@ -40,7 +40,7 @@ import java.util.Map;
  * @since 4.0.0
  */
 //@Component(service = RestApiProvider.class,
-//        immediate = true)
+//        immediate = true) //todo: implement
 public class BusinessRulesApiProvider implements RestApiProvider {
     public static final String BUSINESS_RULES_APP_NAME = "business-rules";
     private static final Logger LOGGER = LoggerFactory.getLogger(BusinessRulesApiProvider.class);
