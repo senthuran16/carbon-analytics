@@ -78,20 +78,26 @@ public class SiddhiAppApiHelper implements SiddhiAppApiHelperService {
         Response response = null;
         try {
             response = HTTPSClientUtil.doGetRequest(hostAndPort, username, password, siddhiAppName);
-            int status = response.status();
-            JSONObject statusMessage;
-            switch (status) {
-                case 200:
-                    statusMessage = new JSONObject(response.body().toString());
-                    return statusMessage.getString(SiddhiAppApiConstants.STATUS);
-                case 404:
-                    throw new SiddhiAppsApiHelperException("Specified siddhi app '" + siddhiAppName + "' " +
-                            "is not found on the node '" + hostAndPort + "'");
-                default:
-                    throw new SiddhiAppsApiHelperException("Unexpected status code '" + status + "' received when " +
-                            "requesting the status of siddhi app '" + siddhiAppName + "' from the node '" +
-                            hostAndPort + "'");
+            if (response != null) {
+                int status = response.status();
+                JSONObject statusMessage;
+                switch (status) {
+                    case 200:
+                        statusMessage = new JSONObject(response.body().toString());
+                        return statusMessage.getString(SiddhiAppApiConstants.STATUS);
+                    case 404:
+                        throw new SiddhiAppsApiHelperException("Specified siddhi app '" + siddhiAppName + "' " +
+                                "is not found on the node '" + hostAndPort + "'");
+                    default:
+                        throw new SiddhiAppsApiHelperException("Unexpected status code '" + status +
+                                "' received when " +
+                                "requesting the status of siddhi app '" + siddhiAppName + "' from the node '" +
+                                hostAndPort + "'");
+                }
             }
+            throw new SiddhiAppsApiHelperException("Unexpected status code received when " +
+                    "requesting the status of siddhi app '" + siddhiAppName + "' from the node '" +
+                    hostAndPort + "'");
         } catch (SiddhiAppDeployerServiceStubException e) {
             throw new SiddhiAppsApiHelperException("URI generated for node url '" + hostAndPort + "' is invalid.", e);
         } finally {
