@@ -45,26 +45,30 @@ public class SiddhiAppApiHelper implements SiddhiAppApiHelperService {
         Response response = null;
         try {
             response = HTTPSClientUtil.doPostRequest(hostAndPort, username, password, siddhiApp);
-            int status = response.status();
-            switch (status) {
-                case 201:
-                    return true;
-                case 400:
-                    throw new SiddhiAppsApiHelperException("A validation error occurred during " +
-                            "saving the siddhi app '" + siddhiApp +
-                            "' on the node '" + hostAndPort + "'");
-                case 409:
-                    throw new SiddhiAppsApiHelperException("A Siddhi Application with " +
-                            "the given name already exists  " +
-                            "in the node '" + hostAndPort + "'");
-                case 500:
-                    throw new SiddhiAppsApiHelperException("Unexpected error occurred during " +
-                            "saving the siddhi app '" + siddhiApp + "' " +
-                            "on the node '" + hostAndPort + "'");
-                default:
-                    throw new SiddhiAppsApiHelperException("Unexpected status code '" + status + "' received when " +
-                            "trying to deploy the siddhi app '" + siddhiApp + "' on node '" + hostAndPort + "'");
+            if (response != null) {
+                int status = response.status();
+                switch (status) {
+                    case 201:
+                        return true;
+                    case 400:
+                        throw new SiddhiAppsApiHelperException("A validation error occurred during " +
+                                "saving the siddhi app '" + siddhiApp +
+                                "' on the node '" + hostAndPort + "'");
+                    case 409:
+                        throw new SiddhiAppsApiHelperException("A Siddhi Application with " +
+                                "the given name already exists  " +
+                                "in the node '" + hostAndPort + "'");
+                    case 500:
+                        throw new SiddhiAppsApiHelperException("Unexpected error occurred during " +
+                                "saving the siddhi app '" + siddhiApp + "' " +
+                                "on the node '" + hostAndPort + "'");
+                    default:
+                        throw new SiddhiAppsApiHelperException("Unexpected status code '" + status +
+                                "' received when " +
+                                "trying to deploy the siddhi app '" + siddhiApp + "' on node '" + hostAndPort + "'");
+                }
             }
+            throw new SiddhiAppsApiHelperException("Unable to receive response from '" + hostAndPort + "'");
         } catch (SiddhiAppDeployerServiceStubException|FeignException e) {
             throw new SiddhiAppsApiHelperException("Failed to deploy siddhi app '" + siddhiApp + "' on the node '" +
                     hostAndPort + "'. ", e);
@@ -95,9 +99,7 @@ public class SiddhiAppApiHelper implements SiddhiAppApiHelperService {
                                 hostAndPort + "'");
                 }
             }
-            throw new SiddhiAppsApiHelperException("Unexpected status code received when " +
-                    "requesting the status of siddhi app '" + siddhiAppName + "' from the node '" +
-                    hostAndPort + "'");
+            throw new SiddhiAppsApiHelperException("Unable to receive response from '" + hostAndPort + "'");
         } catch (SiddhiAppDeployerServiceStubException e) {
             throw new SiddhiAppsApiHelperException("URI generated for node url '" + hostAndPort + "' is invalid.", e);
         } catch (FeignException e) {
@@ -113,18 +115,22 @@ public class SiddhiAppApiHelper implements SiddhiAppApiHelperService {
         Response response = null;
         try {
             response = HTTPSClientUtil.doDeleteRequest(hostAndPort, username, password, siddhiAppName);
-            int status = response.status();
-            switch (status) {
-                case 200:
-                    return true;
-                case 404:
-                    throw new SiddhiAppsApiHelperException("Specified siddhi app '" + siddhiAppName +
-                            "' is not found on the node '" + hostAndPort + "'");
-                default:
-                    throw new SiddhiAppsApiHelperException("Unexpected status code '" + status + "' received when " +
-                            "trying to delete the siddhi app '" + siddhiAppName + "' from the node '" +
-                            hostAndPort + "'");
+            if (response != null) {
+                int status = response.status();
+                switch (status) {
+                    case 200:
+                        return true;
+                    case 404:
+                        throw new SiddhiAppsApiHelperException("Specified siddhi app '" + siddhiAppName +
+                                "' is not found on the node '" + hostAndPort + "'");
+                    default:
+                        throw new SiddhiAppsApiHelperException("Unexpected status code '" + status +
+                                "' received when " +
+                                "trying to delete the siddhi app '" + siddhiAppName + "' from the node '" +
+                                hostAndPort + "'");
+                }
             }
+            throw new SiddhiAppsApiHelperException("Unable to receive response from '" + hostAndPort + "'");
         } catch (SiddhiAppDeployerServiceStubException|FeignException e) {
             throw new SiddhiAppsApiHelperException("Failed to delete siddhi app '" + siddhiAppName +
                     "' from the node '" + hostAndPort + "'. ", e);
@@ -138,17 +144,21 @@ public class SiddhiAppApiHelper implements SiddhiAppApiHelperService {
         Response response = null;
         try {
             response = HTTPSClientUtil.doPutRequest(hostAndPort, username, password, siddhiApp);
-            int status = response.status();
-            switch (status) {
-                case 400:
-                    throw new SiddhiAppsApiHelperException("Failed to update the siddhi app '" + siddhiApp +
-                            "' on node '" + hostAndPort + "' due to a validation error occurred " +
-                            "when updating the siddhi app");
-                case 500:
-                    throw new SiddhiAppsApiHelperException("Failed to update the siddhi app '" + siddhiApp +
-                            "' on node '" + hostAndPort + "' due to an unexpected error occurred during updating the " +
-                            "siddhi app");
+            if (response != null) {
+                int status = response.status();
+                switch (status) {
+                    case 400:
+                        throw new SiddhiAppsApiHelperException("Failed to update the siddhi app '" + siddhiApp +
+                                "' on node '" + hostAndPort + "' due to a validation error occurred " +
+                                "when updating the siddhi app");
+                    case 500:
+                        throw new SiddhiAppsApiHelperException("Failed to update the siddhi app '" + siddhiApp +
+                                "' on node '" + hostAndPort +
+                                "' due to an unexpected error occurred during updating the " +
+                                "siddhi app");
+                }
             }
+            throw new SiddhiAppsApiHelperException("Unable to receive response from '" + hostAndPort + "'");
         } catch (SiddhiAppDeployerServiceStubException|FeignException e) {
             throw new SiddhiAppsApiHelperException("Failed to update the siddhi app '" + siddhiApp + "' on node '"
                     + hostAndPort + "'. ", e);
