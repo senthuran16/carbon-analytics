@@ -17,14 +17,14 @@
  */
 package org.wso2.carbon.business.rules.core.deployer;
 
+import feign.FeignException;
+import feign.Response;
 import org.json.JSONObject;
 import org.wso2.carbon.business.rules.core.datasource.configreader.ConfigReader;
 import org.wso2.carbon.business.rules.core.deployer.api.SiddhiAppApiHelperService;
 import org.wso2.carbon.business.rules.core.deployer.util.HTTPSClientUtil;
 import org.wso2.carbon.business.rules.core.exceptions.SiddhiAppDeployerServiceStubException;
 import org.wso2.carbon.business.rules.core.exceptions.SiddhiAppsApiHelperException;
-
-import feign.Response;
 
 /**
  * Consists of methods for additional features for the exposed Siddhi App Api
@@ -65,7 +65,7 @@ public class SiddhiAppApiHelper implements SiddhiAppApiHelperService {
                     throw new SiddhiAppsApiHelperException("Unexpected status code '" + status + "' received when " +
                             "trying to deploy the siddhi app '" + siddhiApp + "' on node '" + hostAndPort + "'");
             }
-        } catch (SiddhiAppDeployerServiceStubException e) {
+        } catch (SiddhiAppDeployerServiceStubException|FeignException e) {
             throw new SiddhiAppsApiHelperException("Failed to deploy siddhi app '" + siddhiApp + "' on the node '" +
                     hostAndPort + "'. ", e);
         } finally {
@@ -100,6 +100,9 @@ public class SiddhiAppApiHelper implements SiddhiAppApiHelperService {
                     hostAndPort + "'");
         } catch (SiddhiAppDeployerServiceStubException e) {
             throw new SiddhiAppsApiHelperException("URI generated for node url '" + hostAndPort + "' is invalid.", e);
+        } catch (FeignException e) {
+            throw new SiddhiAppsApiHelperException(
+                    "Failed to get the status of '" + siddhiAppName + "' in " + hostAndPort);
         } finally {
             closeResponse(response);
         }
@@ -122,7 +125,7 @@ public class SiddhiAppApiHelper implements SiddhiAppApiHelperService {
                             "trying to delete the siddhi app '" + siddhiAppName + "' from the node '" +
                             hostAndPort + "'");
             }
-        } catch (SiddhiAppDeployerServiceStubException e) {
+        } catch (SiddhiAppDeployerServiceStubException|FeignException e) {
             throw new SiddhiAppsApiHelperException("Failed to delete siddhi app '" + siddhiAppName +
                     "' from the node '" + hostAndPort + "'. ", e);
         } finally {
@@ -146,7 +149,7 @@ public class SiddhiAppApiHelper implements SiddhiAppApiHelperService {
                             "' on node '" + hostAndPort + "' due to an unexpected error occurred during updating the " +
                             "siddhi app");
             }
-        } catch (SiddhiAppDeployerServiceStubException e) {
+        } catch (SiddhiAppDeployerServiceStubException|FeignException e) {
             throw new SiddhiAppsApiHelperException("Failed to update the siddhi app '" + siddhiApp + "' on node '"
                     + hostAndPort + "'. ", e);
         } finally {
