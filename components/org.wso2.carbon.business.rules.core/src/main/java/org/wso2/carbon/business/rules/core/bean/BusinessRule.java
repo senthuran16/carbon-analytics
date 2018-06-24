@@ -23,7 +23,7 @@ package org.wso2.carbon.business.rules.core.bean;
  * created from Template
  * and created from scratch
  */
-public class BusinessRule {
+public abstract class BusinessRule {
     private String uuid;
     private String name;
     private String templateGroupUUID;
