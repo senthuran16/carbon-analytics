@@ -140,6 +140,33 @@ export default class LandingPage extends Component {
     }
 
     /**
+     * Un-deploys the business rule, that has the given UUID
+     * @param {String} businessRuleUUID     UUID of the business rule
+     */
+    undeployBusinessRule(businessRuleUUID) {
+        new BusinessRulesAPI(BusinessRulesConstants.BASE_URL)
+            .undeployBusinessRule(businessRuleUUID)
+            .then((undeployResponse) => {
+                this.toggleSnackbar(undeployResponse.data[1]);
+                // set state temporary until next refresh cycle
+                let { businessRules } = this.state;
+
+                console.log(businessRules);
+                businessRules.forEach(b => {
+                    if (b[0].uuid === businessRuleUUID) {
+                        b[1] = 1;
+                        return;
+                    }
+                });
+                this.setState({businessRules});
+            })
+            .catch(() => {
+                this.toggleSnackbar(`Failed to undeploy the business rule '${businessRuleUUID}'`);
+                this.loadAvailableBusinessRules();
+            });
+    }
+
+    /**
      * Deletes the business rule, that has the given UUID
      * @param {String} businessRuleUUID     UUID of the business rule
      */
@@ -288,6 +315,7 @@ export default class LandingPage extends Component {
                                     status={businessRuleAndStatus[1]}
                                     permissions={this.state.permissions}
                                     onRedeploy={() => this.redeployBusinessRule(businessRuleAndStatus[0].uuid)}
+                                    onUndeployRequest={() => this.undeployBusinessRule(businessRuleAndStatus[0].uuid)}
                                     onDeleteRequest={() => this.toggleDeleteDialog(businessRuleAndStatus[0])}
                                     onDeploymentInfoRequest={() => this.showDeploymentInfo(businessRuleAndStatus)}
                                 />))}
