@@ -80,6 +80,7 @@ export default class LandingPage extends Component {
             // Dialog for deleting a business rule
             deleteDialog: {
                 businessRule: {},
+                businessRuleIndex: -1,
                 isVisible: false,
             },
 
@@ -123,63 +124,114 @@ export default class LandingPage extends Component {
     }
 
     /**
+     * Checks whether the given error has been occurred due to authorization,
+     * and updates the error code necessarily in the state, if so
+     * @param {Object} error     Error object
+     */
+    checkAuthorizationOnError(error) {
+        if (error.response.status === 401) {
+            this.setState({
+                errorCode: BusinessRulesUtilityFunctions.getErrorDisplayCode(error),
+            });
+        }
+    }
+
+    /**
+     * Updates the status of the business rule - which is denoted with the given index in the array from the state,
+     * with the given status
+     * @param {number} businessRuleIndex     Index of the business rule in the array, in the state
+     * @param {number} status                Status of the business rule
+     */
+    updateBusinessRuleStatus(businessRuleIndex, status) {
+        let businessRules = this.state.businessRules;
+        businessRules[businessRuleIndex][1] = status;
+        this.setState({ businessRules });
+    }
+
+    /**
+     * Gets the status code of a business rule, based on the given response data
+     * @param {Array} responseData      Response data array which is either from a Response or an Error
+     * @returns {number}                Status code for the business rule
+     */
+    getBusinessRuleStatusCode(responseData) {
+        if (Array.isArray(responseData[2])) {
+            return BusinessRulesConstants.BUSINESS_RULE_STATUSES[4];
+        }
+        if (responseData[2] === BusinessRulesConstants.SCRIPT_EXECUTION_ERROR) {
+            return BusinessRulesConstants.BUSINESS_RULE_STATUSES[5];
+        }
+        return responseData[2];
+    }
+
+    /**
      * Re-deploys the business rule, that has the given UUID
      * @param {String} businessRuleUUID     UUID of the business rule
+     * @param businessRuleIndex             Index of the business rule in the array, in the state
      */
-    redeployBusinessRule(businessRuleUUID) {
+    redeployBusinessRule(businessRuleUUID, businessRuleIndex) {
         new BusinessRulesAPI(BusinessRulesConstants.BASE_URL)
             .redeployBusinessRule(businessRuleUUID)
             .then((redeployResponse) => {
                 this.toggleSnackbar(redeployResponse.data[1]);
-                this.loadAvailableBusinessRules();
+                this.updateBusinessRuleStatus(businessRuleIndex, this.getBusinessRuleStatusCode(redeployResponse.data));
             })
-            .catch(() => {
+            .catch((error) => {
+                this.checkAuthorizationOnError(error);
                 this.toggleSnackbar(`Failed to deploy the business rule '${businessRuleUUID}'`);
-                this.loadAvailableBusinessRules();
+                if (error.response.data) {
+                    this.updateBusinessRuleStatus(
+                        businessRuleIndex, this.getBusinessRuleStatusCode(error.response.data));
+                } else {
+                    this.updateBusinessRuleStatus(businessRuleIndex, BusinessRulesConstants.BUSINESS_RULE_STATUSES[5]);
+                }
             });
     }
 
     /**
      * Un-deploys the business rule, that has the given UUID
      * @param {String} businessRuleUUID     UUID of the business rule
+     * @param {number} businessRuleIndex    Index of the business rule in the array, in the state
      */
-    undeployBusinessRule(businessRuleUUID) {
+    undeployBusinessRule(businessRuleUUID, businessRuleIndex) {
         new BusinessRulesAPI(BusinessRulesConstants.BASE_URL)
             .undeployBusinessRule(businessRuleUUID)
             .then((undeployResponse) => {
                 this.toggleSnackbar(undeployResponse.data[1]);
-                // set state temporary until next refresh cycle
-                let { businessRules } = this.state;
-
-                console.log(businessRules);
-                businessRules.forEach(b => {
-                    if (b[0].uuid === businessRuleUUID) {
-                        b[1] = 1;
-                        return;
-                    }
-                });
-                this.setState({businessRules});
+                this.updateBusinessRuleStatus(businessRuleIndex, this.getBusinessRuleStatusCode(undeployResponse.data));
             })
-            .catch(() => {
-                this.toggleSnackbar(`Failed to undeploy the business rule '${businessRuleUUID}'`);
-                this.loadAvailableBusinessRules();
+            .catch((error) => {
+                this.checkAuthorizationOnError(error);
+                this.toggleSnackbar(`Failed to un-deploy the business rule '${businessRuleUUID}'`);
+                if (error.response.data) {
+                    this.updateBusinessRuleStatus(
+                        businessRuleIndex, this.getBusinessRuleStatusCode(error.response.data));
+                } else {
+                    this.updateBusinessRuleStatus(businessRuleIndex, BusinessRulesConstants.BUSINESS_RULE_STATUSES[5]);
+                }
             });
     }
 
     /**
      * Deletes the business rule, that has the given UUID
      * @param {String} businessRuleUUID     UUID of the business rule
+     * @param {number} businessRuleIndex    Index of the business rule in the array, in the state
      */
-    deleteBusinessRule(businessRuleUUID) {
+    deleteBusinessRule(businessRuleUUID, businessRuleIndex) {
         this.toggleDeleteDialog();
         new BusinessRulesAPI(BusinessRulesConstants.BASE_URL).deleteBusinessRule(businessRuleUUID, false)
             .then((deleteResponse) => {
                 this.toggleSnackbar(deleteResponse.data[1]);
-                this.loadAvailableBusinessRules();
+                this.updateBusinessRuleStatus(businessRuleIndex, this.getBusinessRuleStatusCode(deleteResponse.data));
             })
-            .catch(() => {
+            .catch((error) => {
+                this.checkAuthorizationOnError(error);
                 this.toggleSnackbar(`Failed to delete the business rule '${businessRuleUUID}'`);
-                this.loadAvailableBusinessRules();
+                if (error.response.data) {
+                    this.updateBusinessRuleStatus(
+                        businessRuleIndex, this.getBusinessRuleStatusCode(error.response.data));
+                } else {
+                    this.updateBusinessRuleStatus(businessRuleIndex, BusinessRulesConstants.BUSINESS_RULE_STATUSES[5]);
+                }
             });
     }
 
@@ -230,12 +282,14 @@ export default class LandingPage extends Component {
     /**
      * Displays the delete dialog for the business rule with the given UUID (if any),
      * otherwise hides it
-     * @param {Object} businessRule     Business rule object
+     * @param {Object} businessRule         Business rule object
+     * @param {number} businessRuleIndex    Index of the business rule in the array, in the state
      */
-    toggleDeleteDialog(businessRule) {
+    toggleDeleteDialog(businessRule, businessRuleIndex) {
         const state = this.state;
         if (businessRule) {
             state.deleteDialog.businessRule = businessRule;
+            state.deleteDialog.businessRuleIndex = businessRuleIndex;
             state.deleteDialog.isVisible = true;
         } else {
             state.deleteDialog.businessRule = {};
@@ -306,7 +360,7 @@ export default class LandingPage extends Component {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {this.state.businessRules.map(businessRuleAndStatus =>
+                            {this.state.businessRules.map((businessRuleAndStatus, index) =>
                                 (<BusinessRule
                                     key={businessRuleAndStatus[0].uuid}
                                     name={businessRuleAndStatus[0].name}
@@ -314,9 +368,11 @@ export default class LandingPage extends Component {
                                     type={businessRuleAndStatus[0].type}
                                     status={businessRuleAndStatus[1]}
                                     permissions={this.state.permissions}
-                                    onRedeploy={() => this.redeployBusinessRule(businessRuleAndStatus[0].uuid)}
-                                    onUndeployRequest={() => this.undeployBusinessRule(businessRuleAndStatus[0].uuid)}
-                                    onDeleteRequest={() => this.toggleDeleteDialog(businessRuleAndStatus[0])}
+                                    onRedeployRequest={() =>
+                                        this.redeployBusinessRule(businessRuleAndStatus[0].uuid, index)}
+                                    onDeleteRequest={() => this.toggleDeleteDialog(businessRuleAndStatus[0], index)}
+                                    onUndeployRequest={() =>
+                                        this.undeployBusinessRule(businessRuleAndStatus[0].uuid, index)}
                                     onDeploymentInfoRequest={() => this.showDeploymentInfo(businessRuleAndStatus)}
                                 />))}
                         </TableBody>
@@ -385,7 +441,10 @@ export default class LandingPage extends Component {
                     </DialogContent>
                     <DialogActions>
                         <Button
-                            onClick={() => this.deleteBusinessRule(this.state.deleteDialog.businessRule.uuid)}
+                            onClick={() =>
+                                this.deleteBusinessRule(
+                                    this.state.deleteDialog.businessRule.uuid,
+                                    this.state.deleteDialog.businessRuleIndex)}
                         >
                             Delete
                         </Button>
