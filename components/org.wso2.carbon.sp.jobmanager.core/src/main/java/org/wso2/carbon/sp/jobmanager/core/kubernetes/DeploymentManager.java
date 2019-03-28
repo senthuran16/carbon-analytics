@@ -69,14 +69,14 @@ public class DeploymentManager {
         List<WorkerPodInfo> latestPods = getAvailableWorkerPods();
         latestPods.removeAll(this.availableWorkerPods);
 
-        return latestPods; // TODO implement. Get Id's of new pods (that haven't yet been updated), from the cluster
+        return latestPods;
     }
 
     /**
      * Gets information about all the available Pods
      * @return  List of Pod details
      */
-    private List<WorkerPodInfo> getAvailableWorkerPods() {
+    public List<WorkerPodInfo> getAvailableWorkerPods() { // TODO make this private
         List<Pod> pods = kubernetesClient.pods().list().getItems();
         List<WorkerPodInfo> workerPodInfos = new ArrayList<>();
         for (Pod pod : pods) {
