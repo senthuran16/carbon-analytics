@@ -16,10 +16,28 @@ public class Operator extends TimerTask {
     ChildSiddhiAppsHandler childSiddhiAppsHandler;
     DeploymentManager deploymentManager;
 
+    public Operator() {
+        this.kubernetesClient = new DefaultKubernetesClient();
+        this.childSiddhiAppsHandler = new ChildSiddhiAppsHandler();
+        this.deploymentManager = new DeploymentManager(kubernetesClient);
+    }
+
     public Operator(KubernetesClient kubernetesClient) {
         this.kubernetesClient = kubernetesClient;
         this.childSiddhiAppsHandler = new ChildSiddhiAppsHandler();
         this.deploymentManager = new DeploymentManager(kubernetesClient);
+    }
+
+    public KubernetesClient getKubernetesClient() {
+        return kubernetesClient;
+    }
+
+    public ChildSiddhiAppsHandler getChildSiddhiAppsHandler() {
+        return childSiddhiAppsHandler;
+    }
+
+    public DeploymentManager getDeploymentManager() {
+        return deploymentManager;
     }
 
     @Override
