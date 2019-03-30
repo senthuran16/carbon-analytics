@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.sp.jobmanager.core.internal;
 
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
@@ -38,7 +37,6 @@ import org.wso2.carbon.sp.jobmanager.core.CoordinatorChangeListener;
 import org.wso2.carbon.sp.jobmanager.core.allocation.ResourceAllocationAlgorithm;
 import org.wso2.carbon.sp.jobmanager.core.api.ResourceManagerApi;
 import org.wso2.carbon.sp.jobmanager.core.appcreator.AbstractSiddhiAppCreator;
-import org.wso2.carbon.sp.jobmanager.core.kubernetes.Operator;
 import org.wso2.carbon.stream.processor.common.utils.config.ClusterConfig;
 import org.wso2.carbon.sp.jobmanager.core.bean.DeploymentConfig;
 import org.wso2.carbon.sp.jobmanager.core.deployment.DeploymentManagerImpl;
@@ -98,18 +96,6 @@ public class ServiceComponent {
                         "specified in deployment.yaml not found.", e);
             }
         }
-
-//        log.info("Starting Cloud Native Dynamic Scaling");
-//        KubernetesSiddhiAppDeployer.exec();
-
-        Operator operator = new Operator(new DefaultKubernetesClient());
-//        Operator operator = new Operator();
-//        List<WorkerPodInfo> pods = operator.getDeploymentManager().getAvailableWorkerPods();
-//        System.out.println(pods.size() + " Pods found");
-//        for (WorkerPodInfo pod : pods) {
-//            System.out.println(pod.getName() + "\t" + pod.getIp());
-//        }
-        System.out.println("End");
     }
 
     /**
