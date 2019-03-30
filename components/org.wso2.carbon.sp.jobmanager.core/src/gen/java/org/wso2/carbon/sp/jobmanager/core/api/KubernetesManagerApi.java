@@ -77,6 +77,7 @@ public class KubernetesManagerApi implements Microservice {
     @Consumes({"application/json"})
     public Response updateDeployments(@ApiParam(value = "Worker pods and relevant Siddhi apps", required = true)
                                      Map<WorkerPodInfo, ChildSiddhiAppInfo> deployments) throws NotFoundException {
-        return null; // TODO implement
+
+        return kubernetesManagerApi.updateDeployments(deployments);
     }
 }
