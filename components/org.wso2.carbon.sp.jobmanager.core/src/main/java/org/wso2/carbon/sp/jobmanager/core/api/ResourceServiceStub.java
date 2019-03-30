@@ -45,4 +45,8 @@ public interface ResourceServiceStub {
     @Headers("Content-Type: application/json")
     @RequestLine("GET /siddhi-apps")
     Response getSiddhiApps();
+
+    @Headers("Content-Type: application/json")
+    @RequestLine("GET /statistics")
+    Response getWorkerPodMetrics();
 }

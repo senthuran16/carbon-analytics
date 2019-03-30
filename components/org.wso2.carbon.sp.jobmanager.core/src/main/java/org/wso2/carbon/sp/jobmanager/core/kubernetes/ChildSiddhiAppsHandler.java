@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Contains methods for handling child Siddhi app related actions
  */
-public class ChildSiddhiAppsHandler {
+public class ChildSiddhiAppsHandler { // TODO expose via API
     public List<ChildSiddhiAppInfo> getChildSiddhiAppInfos(String userDefinedSiddhiApp) {
         return getHardCodedChildSiddhiApps(); // TODO fix below
 //        SiddhiTopologyCreator siddhiTopologyCreator = new SiddhiTopologyCreatorImpl();
@@ -85,7 +85,7 @@ public class ChildSiddhiAppsHandler {
                         1,
                         isChildAppStateful(hardCodedApp1),
                         false));
-        childSiddhiAppInfos.add( // TODO TEMPORARY. UNCOMMENT THIS
+        childSiddhiAppInfos.add(
                 new ChildSiddhiAppInfo(
                         "test-app-group-2-1",
                         hardCodedApp2,
