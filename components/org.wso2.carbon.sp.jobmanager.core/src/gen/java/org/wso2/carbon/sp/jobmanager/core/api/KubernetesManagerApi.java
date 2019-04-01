@@ -26,6 +26,7 @@ import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.analytics.msf4j.interceptor.common.AuthenticationInterceptor;
 import org.wso2.carbon.sp.jobmanager.core.factories.KubernetesManagerApiServiceFactory;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.ChildSiddhiAppInfo;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.DeploymentInfo;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.WorkerPodInfo;
 import org.wso2.msf4j.Microservice;
 import org.wso2.msf4j.Request;
@@ -34,6 +35,7 @@ import org.wso2.msf4j.interceptor.annotation.RequestInterceptor;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -75,9 +77,8 @@ public class KubernetesManagerApi implements Microservice {
     @POST
     @Path("/worker-pods/deployments")
     @Consumes({"application/json"})
-    public Response updateDeployments(@ApiParam(value = "Worker pods and relevant Siddhi apps", required = true)
-                                     Map<WorkerPodInfo, ChildSiddhiAppInfo> deployments) throws NotFoundException {
-
+    public Response updateDeployments(@ApiParam(value = "Siddhi app deployments", required = true)
+                                                  List<DeploymentInfo> deployments) throws NotFoundException {
         return kubernetesManagerApi.updateDeployments(deployments);
     }
 }

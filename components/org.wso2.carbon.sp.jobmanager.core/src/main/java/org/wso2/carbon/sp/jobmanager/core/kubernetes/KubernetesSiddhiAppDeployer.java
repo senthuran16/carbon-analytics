@@ -8,6 +8,7 @@ import org.wso2.carbon.sp.jobmanager.core.api.ResourceServiceFactory;
 import org.wso2.carbon.sp.jobmanager.core.appcreator.SiddhiQuery;
 import org.wso2.carbon.sp.jobmanager.core.impl.utils.Constants;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.ChildSiddhiAppInfo;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.DeploymentInfo;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.WorkerPodInfo;
 import org.wso2.carbon.sp.jobmanager.core.model.ResourceNode;
 import org.wso2.carbon.sp.jobmanager.core.util.HTTPSClientUtil;
@@ -37,19 +38,20 @@ public class KubernetesSiddhiAppDeployer {
 
         ChildSiddhiAppInfo childSiddhiAppInfo =
                 new ChildSiddhiAppInfo("test-app-group-1-1", hardCodedApp, 1, false, false);
-        deploy(workerPodInfo, childSiddhiAppInfo);
+//        deploy(workerPodInfo, childSiddhiAppInfo);
         System.out.println("Deployed");
 
     }
 
-    public static boolean deploy(WorkerPodInfo pod, ChildSiddhiAppInfo siddhiApp) {
+    public static boolean deploy(DeploymentInfo deployment) {
         Response resourceResponse = null;
         try {
             resourceResponse = ResourceServiceFactory
                     .getResourceHttpsClient(
-                            Constants.PROTOCOL + HTTPSClientUtil.generateURLHostPort(pod.getIp(), "9443"),
+                            Constants.PROTOCOL + HTTPSClientUtil.generateURLHostPort(
+                                    deployment.getWorkerPodInfo().getIp(), "9443"),
                             "admin", "admin") // TODO remove hardcoded
-                    .postSiddhiApp(siddhiApp.getContent());
+                    .postSiddhiApp(deployment.getChildSiddhiAppInfo().getContent());
 
             if (resourceResponse != null) {
                 if (resourceResponse.status() == 200) {
@@ -60,7 +62,7 @@ public class KubernetesSiddhiAppDeployer {
             return false;
         } catch (FeignException e) {
             // TODO log if isDebugEnabled
-            System.out.println("Failed to deploy Siddhi application to Pod: " + pod);
+            System.out.println("Failed to create deployment: " + deployment);
             return false;
         } finally {
             if (resourceResponse != null) {

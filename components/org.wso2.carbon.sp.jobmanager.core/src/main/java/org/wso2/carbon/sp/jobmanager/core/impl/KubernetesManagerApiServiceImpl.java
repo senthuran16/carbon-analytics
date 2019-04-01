@@ -29,6 +29,7 @@ import org.wso2.carbon.sp.jobmanager.core.api.NotFoundException;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.KubernetesSiddhiAppDeployer;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.WorkerPodsMonitor;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.ChildSiddhiAppInfo;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.DeploymentInfo;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.WorkerPodInfo;
 import org.wso2.msf4j.Request;
 
@@ -57,13 +58,14 @@ public class KubernetesManagerApiServiceImpl extends KubernetesManagerApiService
     }
 
     @Override
-    public Response updateDeployments(Map<WorkerPodInfo, ChildSiddhiAppInfo> deployments) throws NotFoundException {
-        Map<WorkerPodInfo, Boolean> deploymentStatuses = new HashMap<>();
-        for (Map.Entry<WorkerPodInfo, ChildSiddhiAppInfo> deployment : deployments.entrySet()) {
-            boolean isDeploymentSuccess =
-                    KubernetesSiddhiAppDeployer.deploy(deployment.getKey(), deployment.getValue());
-            deploymentStatuses.put(deployment.getKey(), isDeploymentSuccess);
+    public Response updateDeployments(List<DeploymentInfo> deployments) throws NotFoundException {
+        List<DeploymentInfo> failedDeployments = new ArrayList<>();
+        for (DeploymentInfo deployment : deployments) {
+            boolean isDeploymentSuccess = KubernetesSiddhiAppDeployer.deploy(deployment);
+            if (!isDeploymentSuccess) {
+                failedDeployments.add(deployment);
+            }
         }
-        return null;
+        return Response.ok().entity(failedDeployments).build();
     }
 }

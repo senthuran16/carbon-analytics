@@ -20,10 +20,12 @@
 package org.wso2.carbon.sp.jobmanager.core.api;
 
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.ChildSiddhiAppInfo;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.DeploymentInfo;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.WorkerPodInfo;
 import org.wso2.msf4j.Request;
 
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,6 +38,5 @@ public abstract class KubernetesManagerApiService {
 
     public abstract Response getWorkerPodMetrics(Request request) throws NotFoundException;
 
-    public abstract Response updateDeployments(Map<WorkerPodInfo, ChildSiddhiAppInfo> deployments)
-            throws NotFoundException;
+    public abstract Response updateDeployments(List<DeploymentInfo> deployments) throws NotFoundException;
 }

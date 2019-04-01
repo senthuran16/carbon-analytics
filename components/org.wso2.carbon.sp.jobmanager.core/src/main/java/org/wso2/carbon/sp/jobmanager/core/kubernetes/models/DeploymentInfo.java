@@ -4,6 +4,19 @@ package org.wso2.carbon.sp.jobmanager.core.kubernetes.models;
  * Contains details of a Deployment, which is responsible for containing a child Siddhi app
  */
 public class DeploymentInfo {
-    private String deploymentName;
-    private String childSiddhiAppName;
+    private WorkerPodInfo workerPodInfo;
+    private ChildSiddhiAppInfo childSiddhiAppInfo;
+
+    public DeploymentInfo(WorkerPodInfo workerPodInfo, ChildSiddhiAppInfo childSiddhiAppInfo) {
+        this.workerPodInfo = workerPodInfo;
+        this.childSiddhiAppInfo = childSiddhiAppInfo;
+    }
+
+    public WorkerPodInfo getWorkerPodInfo() {
+        return workerPodInfo;
+    }
+
+    public ChildSiddhiAppInfo getChildSiddhiAppInfo() {
+        return childSiddhiAppInfo;
+    }
 }
