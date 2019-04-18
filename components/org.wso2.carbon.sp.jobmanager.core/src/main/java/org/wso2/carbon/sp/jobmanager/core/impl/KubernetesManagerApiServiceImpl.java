@@ -19,25 +19,23 @@
 
 package org.wso2.carbon.sp.jobmanager.core.impl;
 
+import com.google.gson.Gson;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.annotations.Component;
-import org.wso2.carbon.analytics.permissions.bean.Permission;
 import org.wso2.carbon.sp.jobmanager.core.api.KubernetesManagerApiService;
 import org.wso2.carbon.sp.jobmanager.core.api.ManagersApiService;
 import org.wso2.carbon.sp.jobmanager.core.api.NotFoundException;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.ChildSiddhiAppsHandler;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.KubernetesSiddhiAppDeployer;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.WorkerPodsMonitor;
-import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.ChildSiddhiAppInfo;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.DeploymentInfo;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.WorkerPodInfo;
-import org.wso2.msf4j.Request;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.WorkerPodMetrics;
 
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -51,10 +49,14 @@ public class KubernetesManagerApiServiceImpl extends KubernetesManagerApiService
     private static final Log logger = LogFactory.getLog(KubernetesManagerApiServiceImpl.class);
 
     @Override
-    public Response getWorkerPodMetrics(Request request) throws NotFoundException {
-        // TODO remove hardcoded
-        WorkerPodInfo hardcodedPod = new WorkerPodInfo("test-app-group-1-1", "localhost", "test-app-group-1-1");
-        return WorkerPodsMonitor.getMetrics(hardcodedPod);
+    public Response getWorkerPodMetrics(List<WorkerPodInfo> workerPods) throws NotFoundException {
+        List<WorkerPodMetrics> workerPodMetrics = new ArrayList<>();
+        for (WorkerPodInfo workerPod : workerPods) {
+            long time = System.currentTimeMillis();
+            double metrics = WorkerPodsMonitor.getMetrics(workerPod);
+            workerPodMetrics.add(new WorkerPodMetrics(workerPod, metrics, time));
+        }
+        return Response.ok().entity(new Gson().toJson(workerPodMetrics)).build();
     }
 
     @Override
@@ -67,5 +69,11 @@ public class KubernetesManagerApiServiceImpl extends KubernetesManagerApiService
             }
         }
         return Response.ok().entity(failedDeployments).build();
+    }
+
+    @Override
+    public Response getChildSiddhiAppInfos(String userDefinedSiddhiApp) throws NotFoundException {
+        ChildSiddhiAppsHandler childSiddhiAppsHandler = new ChildSiddhiAppsHandler();
+        return Response.ok().entity(childSiddhiAppsHandler.getChildSiddhiAppInfos(userDefinedSiddhiApp)).build();
     }
 }

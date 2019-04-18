@@ -1326,6 +1326,11 @@
                 <artifactId>kafka_2.11</artifactId>
                 <version>${kafka-2.11.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>kubernetes-client</artifactId>
+                <version>${kubernetes-client.version}</version>
+            </dependency>
 
             <!-- Siddhi Metrics related -->
             <dependency>
@@ -1720,6 +1725,7 @@
         <metrics.version>3.2.5</metrics.version>
         <commons-lang3.version>3.3.2</commons-lang3.version>
         <kafka-2.11.version>0.10.0.0</kafka-2.11.version>
+        <kubernetes-client.version>4.1.3</kubernetes-client.version>
         <common.collections4.version>4.1</common.collections4.version>
 
         <!--MSF4J related-->

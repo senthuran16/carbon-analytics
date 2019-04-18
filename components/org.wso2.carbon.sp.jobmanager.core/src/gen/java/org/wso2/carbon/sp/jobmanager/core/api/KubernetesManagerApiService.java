@@ -36,7 +36,9 @@ import java.util.Map;
         date = "2018-01-29T08:19:07.148Z")
 public abstract class KubernetesManagerApiService {
 
-    public abstract Response getWorkerPodMetrics(Request request) throws NotFoundException;
+    public abstract Response getWorkerPodMetrics(List<WorkerPodInfo> workerPods) throws NotFoundException;
 
     public abstract Response updateDeployments(List<DeploymentInfo> deployments) throws NotFoundException;
+
+    public abstract Response getChildSiddhiAppInfos(String userDefinedSiddhiApp) throws NotFoundException;
 }

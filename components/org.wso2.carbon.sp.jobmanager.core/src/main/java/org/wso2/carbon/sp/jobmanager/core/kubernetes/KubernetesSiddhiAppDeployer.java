@@ -1,19 +1,17 @@
 package org.wso2.carbon.sp.jobmanager.core.kubernetes;
 
-import com.google.gson.Gson;
 import feign.FeignException;
 import feign.Response;
 import org.apache.log4j.Logger;
 import org.wso2.carbon.sp.jobmanager.core.api.ResourceServiceFactory;
-import org.wso2.carbon.sp.jobmanager.core.appcreator.SiddhiQuery;
 import org.wso2.carbon.sp.jobmanager.core.impl.utils.Constants;
-import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.ChildSiddhiAppInfo;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.DeploymentInfo;
-import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.WorkerPodInfo;
-import org.wso2.carbon.sp.jobmanager.core.model.ResourceNode;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.ResourceRequirement;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.resourcerequirementreaders.ResourceRequirementDetectorsHolder;
 import org.wso2.carbon.sp.jobmanager.core.util.HTTPSClientUtil;
+import org.wso2.siddhi.query.api.SiddhiApp;
+import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -22,24 +20,27 @@ import java.util.List;
 public class KubernetesSiddhiAppDeployer {
     private static final Logger LOG = Logger.getLogger(KubernetesSiddhiAppDeployer.class);
 
-    public static void exec() { // TODO remove
-        WorkerPodInfo workerPodInfo = new WorkerPodInfo("test-app-group-1-1", "10.36.1.47", "test-app-group-1-1");
-        String hardCodedApp = "@App:name('test-app-group-1-1') \n" +
-//                "@source(type='kafka', topic.list='test-app.InputStreamOne', group.id='test-app-group-1-0', threading.option='single.thread', bootstrap.servers='localhost:9092', @map(type='xml'))" +
-                "define stream InputStreamOne (name string);\n" +
-                "@sink(type='log')\n" +
-                "define stream LogStreamOne(name string);\n" +
-                "@info(name='query1')\n" +
+    public static void main(String[] args) {
+        String siddhiAppString = "define stream insertSweetProductionStream (name string, amount double);\n" +
                 "\n" +
-                "from InputStreamOne\n" +
-                "select *\n" +
-                "insert into LogStreamOne;";
+                "@Store(type=\"rdbms\",\n" +
+                "       jdbc.url=\"jdbc:mysql://localhost:3306/production\",\n" +
+                "       username=\"root\",\n" +
+                "       password=\"\" ,\n" +
+                "       jdbc.driver.name=\"com.mysql.jdbc.Driver\")\n" +
+                "--@PrimaryKey(\"name\")\n" +
+                "@index(\"amount\")\n" +
+                "define table SweetProductionTable (name string, amount double);\n" +
+                "\n" +
+                "@info(name='query1')\n" +
+                "from insertSweetProductionStream\n" +
+                "insert into SweetProductionTable;";
+        SiddhiApp siddhiApp = SiddhiCompiler.parse(siddhiAppString);
+        ResourceRequirementDetectorsHolder.init();
+        List<ResourceRequirement> resourceRequirements =
+                ResourceRequirementDetectorsHolder.detectResourceRequirements(siddhiAppString);
 
-
-        ChildSiddhiAppInfo childSiddhiAppInfo =
-                new ChildSiddhiAppInfo("test-app-group-1-1", hardCodedApp, 1, false, false);
-//        deploy(workerPodInfo, childSiddhiAppInfo);
-        System.out.println("Deployed");
+        Object o = null;
 
     }
 
@@ -52,16 +53,13 @@ public class KubernetesSiddhiAppDeployer {
                                     deployment.getWorkerPodInfo().getIp(), "9443"),
                             "admin", "admin") // TODO remove hardcoded
                     .postSiddhiApp(deployment.getChildSiddhiAppInfo().getContent());
-
             if (resourceResponse != null) {
                 if (resourceResponse.status() == 200) {
                     return true;
                 }
             }
-
             return false;
         } catch (FeignException e) {
-            // TODO log if isDebugEnabled
             System.out.println("Failed to create deployment: " + deployment);
             return false;
         } finally {

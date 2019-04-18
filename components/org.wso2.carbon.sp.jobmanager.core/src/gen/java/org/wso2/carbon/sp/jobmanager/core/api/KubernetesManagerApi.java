@@ -35,6 +35,8 @@ import org.wso2.msf4j.interceptor.annotation.RequestInterceptor;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -58,27 +60,40 @@ public class KubernetesManagerApi implements Microservice {
     private final KubernetesManagerApiService kubernetesManagerApi =
             KubernetesManagerApiServiceFactory.getKubernetesManagerApi();
 
-    @GET
+    @POST
     @Path("/worker-pods/metrics")
-    @Produces({"application/json"}) // TODO define well
-    @io.swagger.annotations.ApiOperation(value = "Get metrics of available worker pods in the Kubernetes cluster ",
-            notes = "" + ".", response = void.class, tags = {"Managers",})
-    @io.swagger.annotations.ApiResponses(value = {
-            @io.swagger.annotations.ApiResponse(code = 200, message = "OK.", response = void.class),
-            @io.swagger.annotations.ApiResponse(code = 404, message = "Current node is not the active node",
-                    response = void.class),
-            @io.swagger.annotations.ApiResponse(code = 500, message = "An unexpected error occured.",
-                    response = void.class)})
-    public Response getWorkerPodMetrics(@Context Request request)
-            throws NotFoundException {
-        return kubernetesManagerApi.getWorkerPodMetrics(request);
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    public Response getWorkerPodMetrics(@ApiParam(value = "Worker pods", required = true)
+                                              List<WorkerPodInfo> workerPods) throws NotFoundException {
+        return kubernetesManagerApi.getWorkerPodMetrics(workerPods);
     }
 
     @POST
     @Path("/worker-pods/deployments")
     @Consumes({"application/json"})
+    @Produces({"application/json"})
     public Response updateDeployments(@ApiParam(value = "Siddhi app deployments", required = true)
                                                   List<DeploymentInfo> deployments) throws NotFoundException {
         return kubernetesManagerApi.updateDeployments(deployments);
+    }
+
+    @POST
+    @Path("/siddhi-app")
+    @Consumes({"text/plain"})
+    @Produces({"application/json"})
+//    @Consumes({"application/x-www-form-urlencoded"})
+//    @Produces({"application/x-www-form-urlencoded"})
+    public Response getChildSiddhiAppInfos(@ApiParam(value = "User defined Siddhi app", required = true)
+                                              String userDefinedSiddhiApp) throws NotFoundException {
+//        String siddhiAppString = new String(Base64.getDecoder().decode(userDefinedSiddhiApp), StandardCharsets.UTF_8);
+        return kubernetesManagerApi.getChildSiddhiAppInfos(userDefinedSiddhiApp);
+//        return kubernetesManagerApi.getChildSiddhiAppInfos(userDefinedSiddhiApp);
+    }
+
+    @GET
+    @Path("/is-active")
+    public Response isActive (@Context Request request) {
+        return Response.ok().entity("Kubernetes Manager is Active!").build();
     }
 }
