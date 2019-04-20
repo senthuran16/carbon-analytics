@@ -1,4 +1,4 @@
-package org.wso2.carbon.sp.jobmanager.core.kubernetes.models;
+package org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete;
 
 /**
  * Contains information of metrics of a Worker Pod

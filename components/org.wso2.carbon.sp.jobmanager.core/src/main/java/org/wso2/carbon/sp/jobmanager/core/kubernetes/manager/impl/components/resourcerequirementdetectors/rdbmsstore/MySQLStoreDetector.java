@@ -1,6 +1,7 @@
-package org.wso2.carbon.sp.jobmanager.core.kubernetes.resourcerequirementreaders.rdbmsstore;
+package org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.impl.components.resourcerequirementdetectors.rdbmsstore;
 
-import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.ResourceRequirement;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete.ResourceRequirement;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.impl.components.resourcerequirementdetectors.SiddhiResourceRequirementDetector;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.api.annotation.Annotation;
@@ -11,15 +12,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MySQLStoreDetector extends RDBMSStoreDetector {
+public class MySQLStoreDetector extends SiddhiResourceRequirementDetector {
     // TODO user has to look at these and tag the resource deployment
-    private static final String STORE_RDBMS_MYSQL_KEY = "store-rdbms-mysql";
-    private static final String STORE_RDBMS_MYSQL_VALUE = "true";
+    public static final String STORE_RDBMS_MYSQL_KEY = "store-rdbms-mysql";
+    public static final String STORE_RDBMS_MYSQL_VALUE = "true";
 
     @Override
-    public ResourceRequirement generateResourceRequirement(SiddhiApp siddhiApp, SiddhiAppRuntime siddhiAppRuntime,
-                                                           String siddhiAppString) {
-        Map<String, TableDefinition> tableDefinitionMap = siddhiApp.getTableDefinitionMap();
+    public ResourceRequirement generateResourceRequirement(SiddhiApp parsedApp,
+                                                           SiddhiAppRuntime appRuntime,
+                                                           String appString) {
+        Map<String, TableDefinition> tableDefinitionMap = parsedApp.getTableDefinitionMap();
         for (Map.Entry<String, TableDefinition> tableDefinitionEntry : tableDefinitionMap.entrySet()) {
             List<Annotation> annotations = tableDefinitionEntry.getValue().getAnnotations();
             if (annotations != null) {

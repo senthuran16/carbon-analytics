@@ -19,14 +19,11 @@
 
 package org.wso2.carbon.sp.jobmanager.core.api;
 
-import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.ChildSiddhiAppInfo;
-import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.DeploymentInfo;
-import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.WorkerPodInfo;
-import org.wso2.msf4j.Request;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete.DeploymentInfo;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete.WorkerPodInfo;
 
 import javax.ws.rs.core.Response;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Auto generated class from Swagger to MSF4J. // TODO class comment

@@ -1,4 +1,4 @@
-package org.wso2.carbon.sp.jobmanager.core.kubernetes.models;
+package org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete;
 
 import java.util.Map;
 
@@ -10,5 +10,9 @@ public class ResourceRequirement {
 
     public ResourceRequirement(Map<String, String> labels) {
         this.labels = labels;
+    }
+
+    public Map<String, String> getLabels() {
+        return labels;
     }
 }

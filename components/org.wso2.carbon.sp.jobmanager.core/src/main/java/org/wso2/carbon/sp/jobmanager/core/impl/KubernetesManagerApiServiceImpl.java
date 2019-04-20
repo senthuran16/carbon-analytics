@@ -26,12 +26,12 @@ import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.sp.jobmanager.core.api.KubernetesManagerApiService;
 import org.wso2.carbon.sp.jobmanager.core.api.ManagersApiService;
 import org.wso2.carbon.sp.jobmanager.core.api.NotFoundException;
-import org.wso2.carbon.sp.jobmanager.core.kubernetes.ChildSiddhiAppsHandler;
-import org.wso2.carbon.sp.jobmanager.core.kubernetes.KubernetesSiddhiAppDeployer;
-import org.wso2.carbon.sp.jobmanager.core.kubernetes.WorkerPodsMonitor;
-import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.DeploymentInfo;
-import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.WorkerPodInfo;
-import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.WorkerPodMetrics;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete.DeploymentInfo;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete.WorkerPodInfo;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete.WorkerPodMetrics;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.impl.components.ChildSiddhiAppsHandler;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.impl.components.KubernetesSiddhiAppDeployer;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.impl.components.WorkerPodsMonitor;
 
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public class KubernetesManagerApiServiceImpl extends KubernetesManagerApiService
         List<WorkerPodMetrics> workerPodMetrics = new ArrayList<>();
         for (WorkerPodInfo workerPod : workerPods) {
             long time = System.currentTimeMillis();
-            double metrics = WorkerPodsMonitor.getMetrics(workerPod);
+            double metrics = new WorkerPodsMonitor().getMetrics(workerPod);
             workerPodMetrics.add(new WorkerPodMetrics(workerPod, metrics, time));
         }
         return Response.ok().entity(new Gson().toJson(workerPodMetrics)).build();
@@ -62,8 +62,9 @@ public class KubernetesManagerApiServiceImpl extends KubernetesManagerApiService
     @Override
     public Response updateDeployments(List<DeploymentInfo> deployments) throws NotFoundException {
         List<DeploymentInfo> failedDeployments = new ArrayList<>();
+        KubernetesSiddhiAppDeployer kubernetesSiddhiAppDeployer = new KubernetesSiddhiAppDeployer();
         for (DeploymentInfo deployment : deployments) {
-            boolean isDeploymentSuccess = KubernetesSiddhiAppDeployer.deploy(deployment);
+            boolean isDeploymentSuccess = kubernetesSiddhiAppDeployer.deploy(deployment);
             if (!isDeploymentSuccess) {
                 failedDeployments.add(deployment);
             }
@@ -74,6 +75,6 @@ public class KubernetesManagerApiServiceImpl extends KubernetesManagerApiService
     @Override
     public Response getChildSiddhiAppInfos(String userDefinedSiddhiApp) throws NotFoundException {
         ChildSiddhiAppsHandler childSiddhiAppsHandler = new ChildSiddhiAppsHandler();
-        return Response.ok().entity(childSiddhiAppsHandler.getChildSiddhiAppInfos(userDefinedSiddhiApp)).build();
+        return Response.ok().entity(childSiddhiAppsHandler.getChildAppInfos(userDefinedSiddhiApp)).build();
     }
 }

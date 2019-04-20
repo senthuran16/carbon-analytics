@@ -25,9 +25,8 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.analytics.msf4j.interceptor.common.AuthenticationInterceptor;
 import org.wso2.carbon.sp.jobmanager.core.factories.KubernetesManagerApiServiceFactory;
-import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.ChildSiddhiAppInfo;
-import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.DeploymentInfo;
-import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.WorkerPodInfo;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete.DeploymentInfo;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete.WorkerPodInfo;
 import org.wso2.msf4j.Microservice;
 import org.wso2.msf4j.Request;
 import org.wso2.msf4j.interceptor.annotation.RequestInterceptor;
@@ -35,10 +34,7 @@ import org.wso2.msf4j.interceptor.annotation.RequestInterceptor;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Auto generated class from Swagger to MSF4J. // TODO class comment

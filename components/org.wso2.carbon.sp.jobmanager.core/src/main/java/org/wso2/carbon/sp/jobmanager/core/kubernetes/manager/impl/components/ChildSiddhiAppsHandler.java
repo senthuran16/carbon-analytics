@@ -1,101 +1,62 @@
-package org.wso2.carbon.sp.jobmanager.core.kubernetes;
+package org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.impl.components;
 
-import org.wso2.carbon.sp.jobmanager.core.SiddhiAppCreator;
 import org.wso2.carbon.sp.jobmanager.core.SiddhiTopologyCreator;
-import org.wso2.carbon.sp.jobmanager.core.appcreator.AbstractSiddhiAppCreator;
-import org.wso2.carbon.sp.jobmanager.core.appcreator.DeployableSiddhiQueryGroup;
-import org.wso2.carbon.sp.jobmanager.core.appcreator.KafkaSiddhiAppCreator;
-import org.wso2.carbon.sp.jobmanager.core.bean.DeploymentConfig;
-import org.wso2.carbon.sp.jobmanager.core.bean.ZooKeeperConfig;
-import org.wso2.carbon.sp.jobmanager.core.impl.DistributionManagerServiceImpl;
-import org.wso2.carbon.sp.jobmanager.core.internal.ServiceComponent;
-import org.wso2.carbon.sp.jobmanager.core.internal.ServiceDataHolder;
-import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.ChildSiddhiAppInfo;
-import org.wso2.carbon.sp.jobmanager.core.kubernetes.models.ResourceRequirement;
-import org.wso2.carbon.sp.jobmanager.core.kubernetes.resourcerequirementreaders.ResourceRequirementDetectorsHolder;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete.ResourceRequirement;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.components.job.manager.generic.ChildAppsHandler;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.impl.models.ChildSiddhiAppInfo;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.impl.components.resourcerequirementdetectors.SiddhiResourceRequirementDetectorsHolder;
 import org.wso2.carbon.sp.jobmanager.core.topology.SiddhiQueryGroup;
 import org.wso2.carbon.sp.jobmanager.core.topology.SiddhiTopology;
 import org.wso2.carbon.sp.jobmanager.core.topology.SiddhiTopologyCreatorImpl;
-import org.wso2.carbon.stream.processor.core.internal.StreamProcessorDataHolder;
-import org.wso2.siddhi.core.SiddhiAppRuntime;
-import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.query.api.SiddhiApp;
-import org.wso2.siddhi.query.api.SiddhiElement;
 import org.wso2.siddhi.query.api.execution.ExecutionElement;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Contains methods for handling child Siddhi app related actions
  */
-public class ChildSiddhiAppsHandler {
+public class ChildSiddhiAppsHandler implements ChildAppsHandler<ChildSiddhiAppInfo> {
     public static void main(String[] args) {
-        String siddhiApp = "@App:name('test-app')\n" +
-                "@App:description('Description of the plan')\n" +
-                "\n" +
-                "define stream InputStreamOne (name string);\n" +
-                "define stream InputStreamTwo (name string);\n" +
-                "\n" +
-                "@sink(type='log')\n" +
-                "define stream LogStreamOne(name string);\n" +
-                "\n" +
-                "@sink(type='log')\n" +
-                "define stream LogStreamTwo(name string);\n" +
-                "\n" +
-                "@info(name='query1')\n" +
-                "@dist(execGroup='group-1')\n" +
-                "from InputStreamOne\n" +
-                "select *\n" +
-                "insert into LogStreamOne;\n" +
-                "\n" +
-                "@info(name='query2')\n" +
-                "@dist(execGroup='group-2' ,parallel ='2')\n" +
-                "from InputStreamTwo\n" +
-                "select *\n" +
-                "insert into LogStreamTwo;";
-        List<ChildSiddhiAppInfo> test = new ChildSiddhiAppsHandler().getChildSiddhiAppInfos(siddhiApp);
+        String siddhiApp = "@App:name('dummy-group-2-1') \n" +
+//                "@source(type='kafka', topic.list='dummy.inStream', group.id='dummy-group-2-0', threading.option='single.thread', bootstrap.servers='localhost:9092', @map(type='xml')) \n" +
+                "define stream inStream (message string, value int);\n" +
+                "@store(type = 'rdbms', jdbc.url = \"jdbc:mysql://localhost:3306/production\", username = \"root\", password = \"\", jdbc.driver.name = \"com.mysql.jdbc.Driver\")\n" +
+                "define table myTable (message string, value int);\n" +
+                "@info(name = 'greaterThanHundred')\n" +
+                "from inStream[value > 100] \n" +
+                "select * \n" +
+                "insert into myTable;\n";
+        List<ChildSiddhiAppInfo> childSiddhiAppInfos = new ChildSiddhiAppsHandler().getChildAppInfos(siddhiApp);
         System.out.println("SUCCESS");
     }
 
-    public List<ChildSiddhiAppInfo> getChildSiddhiAppInfos(String userDefinedSiddhiApp) {
-//        return getHardCodedChildSiddhiApps(); // TODO fix below
+    @Override
+    public List<ChildSiddhiAppInfo> getChildAppInfos(String userDefinedApp) {
+        //        return getHardCodedChildSiddhiApps(); // TODO fix below
 
         SiddhiTopologyCreator siddhiTopologyCreator = new SiddhiTopologyCreatorImpl();
-        SiddhiTopology siddhiTopology = siddhiTopologyCreator.createTopology(userDefinedSiddhiApp);
+        SiddhiTopology siddhiTopology = siddhiTopologyCreator.createTopology(userDefinedApp);
 
         // TODO fragile with Kafka - following 2 lines. uncommented in K8s's image
         // TODO without the following, the 'DeployableSiddhiApp' won't be created!
-        SiddhiAppCreator appCreator = new KafkaSiddhiAppCreator();
-        List<DeployableSiddhiQueryGroup> queryGroupList = appCreator.createApps(siddhiTopology);
+//        SiddhiAppCreator appCreator = new KafkaSiddhiAppCreator();
+//        List<DeployableSiddhiQueryGroup> queryGroupList = appCreator.createApps(siddhiTopology);
 
 //        return Collections.emptyList(); // TODO remove
 //
         return extractSiddhiQueryElements(siddhiTopology.getQueryGroupList()); // TODO uncomment
-
-        // TODO old code below
-//        SiddhiTopologyCreator siddhiTopologyCreator = new SiddhiTopologyCreatorImpl();
-//        SiddhiTopology siddhiTopology = siddhiTopologyCreator.createTopology(userDefinedSiddhiApp);
-//
-//        // TODO fragile with Kafka - following 2 lines. uncommented in K8s's image
-//        // TODO without the following, the 'DeployableSiddhiApp' won't be created!
-//        SiddhiAppCreator appCreator = new KafkaSiddhiAppCreator();
-//        List<DeployableSiddhiQueryGroup> queryGroupList = appCreator.createApps(siddhiTopology);
-//
-////        return Collections.emptyList(); // TODO remove
-////
-//        return extractSiddhiQueryElements(siddhiTopology.getQueryGroupList()); // TODO uncomment
     }
 
     private List<ChildSiddhiAppInfo> extractSiddhiQueryElements(List<SiddhiQueryGroup> siddhiQueryGroups) {
-        ResourceRequirementDetectorsHolder.init();
+        SiddhiResourceRequirementDetectorsHolder siddhiResourceRequirementDetectorsHolder =
+                new SiddhiResourceRequirementDetectorsHolder();
+        siddhiResourceRequirementDetectorsHolder.init();
         List<ChildSiddhiAppInfo> childSiddhiAppInfos = new ArrayList<>();
         for (SiddhiQueryGroup siddhiQueryGroup : siddhiQueryGroups) {
             String siddhiQueryGroupName = siddhiQueryGroup.getName();
@@ -103,7 +64,7 @@ public class ChildSiddhiAppsHandler {
             int queryIndex = 0;
             for (String query : siddhiQueryGroup.getQueryList()) {
                 List<ResourceRequirement> resourceRequirements =
-                        ResourceRequirementDetectorsHolder.detectResourceRequirements(query);
+                        siddhiResourceRequirementDetectorsHolder.detectResourceRequirements(query);
                 childSiddhiAppInfos.add(
                         new ChildSiddhiAppInfo(
                                 siddhiQueryGroupName + "-" + queryIndex++,
