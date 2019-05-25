@@ -32,6 +32,7 @@ import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.co
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.impl.components.ChildSiddhiAppsHandler;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.impl.components.KubernetesSiddhiAppDeployer;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.impl.components.WorkerPodsMonitor;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.impl.models.ChildSiddhiAppInfo;
 
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;

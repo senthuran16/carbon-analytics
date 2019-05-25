@@ -3,6 +3,7 @@ package org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.g
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete.ResourceRequirement;
 
 import java.util.List;
+import java.util.Objects;
 
 public abstract class ChildAppInfo {
     private String name;
@@ -48,5 +49,18 @@ public abstract class ChildAppInfo {
 
     public boolean isReceiver() {
         return isReceiver;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChildAppInfo that = (ChildAppInfo) o;
+        return name.equals(that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 }

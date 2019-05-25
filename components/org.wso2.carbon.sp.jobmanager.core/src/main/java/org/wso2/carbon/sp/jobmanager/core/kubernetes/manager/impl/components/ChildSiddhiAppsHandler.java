@@ -22,26 +22,14 @@ import java.util.List;
  * Contains methods for handling child Siddhi app related actions
  */
 public class ChildSiddhiAppsHandler implements ChildAppsHandler<ChildSiddhiAppInfo> {
-    public static void main(String[] args) {
-        String siddhiApp = "@App:name('dummy-group-2-1') \n" +
-//                "@source(type='kafka', topic.list='dummy.inStream', group.id='dummy-group-2-0', threading.option='single.thread', bootstrap.servers='localhost:9092', @map(type='xml')) \n" +
-                "define stream inStream (message string, value int);\n" +
-                "@store(type = 'rdbms', jdbc.url = \"jdbc:mysql://localhost:3306/production\", username = \"root\", password = \"\", jdbc.driver.name = \"com.mysql.jdbc.Driver\")\n" +
-                "define table myTable (message string, value int);\n" +
-                "@info(name = 'greaterThanHundred')\n" +
-                "from inStream[value > 100] \n" +
-                "select * \n" +
-                "insert into myTable;\n";
-        List<ChildSiddhiAppInfo> childSiddhiAppInfos = new ChildSiddhiAppsHandler().getChildAppInfos(siddhiApp);
-        System.out.println("SUCCESS");
-    }
-
     @Override
     public List<ChildSiddhiAppInfo> getChildAppInfos(String userDefinedApp) {
-        //        return getHardCodedChildSiddhiApps(); // TODO fix below
+        List<ChildSiddhiAppInfo> childApps = getHardCodedChildSiddhiApps();
+        return detectSiddhiQueryElements(childApps);
+//        return getHardCodedChildSiddhiApps(); // TODO fix below
 
-        SiddhiTopologyCreator siddhiTopologyCreator = new SiddhiTopologyCreatorImpl();
-        SiddhiTopology siddhiTopology = siddhiTopologyCreator.createTopology(userDefinedApp);
+//        SiddhiTopologyCreator siddhiTopologyCreator = new SiddhiTopologyCreatorImpl();
+//        SiddhiTopology siddhiTopology = siddhiTopologyCreator.createTopology(userDefinedApp);
 
         // TODO fragile with Kafka - following 2 lines. uncommented in K8s's image
         // TODO without the following, the 'DeployableSiddhiApp' won't be created!
@@ -50,7 +38,87 @@ public class ChildSiddhiAppsHandler implements ChildAppsHandler<ChildSiddhiAppIn
 
 //        return Collections.emptyList(); // TODO remove
 //
-        return extractSiddhiQueryElements(siddhiTopology.getQueryGroupList()); // TODO uncomment
+//        return extractSiddhiQueryElements(siddhiTopology.getQueryGroupList()); // TODO uncomment
+    }
+
+    // TODO remove
+    private List<ChildSiddhiAppInfo> getHardCodedChildSiddhiApps() {
+        List<ChildSiddhiAppInfo> childSiddhiAppInfos = new ArrayList<>();
+        String hardCodedApp1 = "@App:name('simple-group-1-1') \n" +
+                "@Source(type='http',\n" +
+                "\treceiver.url='http://0.0.0.0:8006/productionStream',\n" +
+                "\tbasic.auth.enabled='false',\n" +
+                "\t@map(type='json')) \n" +
+                "define stream allStream(name string, amount double);\n" +
+                "@sink(type='log')\n" +
+                "define stream greaterThanFifty(name string, amount double);\n" +
+                "@info(name='greaterThanFifty')\n" +
+                "\n" +
+                "from allStream[amount > 50]\n" +
+                "select *\n" +
+                "insert into greaterThanFifty;";
+        ChildSiddhiAppInfo childSiddhiAppInfo1 = new ChildSiddhiAppInfo(
+                "simple-group-1-1",
+                hardCodedApp1,
+                null,
+                1,
+                false,
+                false);
+        String hardCodedApp2 = "@App:name('simple-group-2-1') \n" +
+                "@Source(type='http',\n" +
+                "\treceiver.url='http://0.0.0.0:8006/productionStream',\n" +
+                "\tbasic.auth.enabled='false',\n" +
+                "\t@map(type='json')) \n" +
+                "define stream allStream(name string, amount double);\n" +
+                "@store(type='rdbms',\n" +
+                "\tjdbc.url='jdbc:mysql//localhost:3306/simple',\n" +
+                "\tusername='root',\n" +
+                "\tpassword='',\n" +
+                "\tjdbc.driver.name='com.mysql.jdbc.Driver')\n" +
+                "define table lessThanFifty(name string, amount double);\n" +
+                "@info(name='lessThanFifty')\n" +
+                "\n" +
+                "from allStream[amount < 50]\n" +
+                "select *\n" +
+                "insert into lessThanFifty;";
+        ChildSiddhiAppInfo childSiddhiAppInfo2 = new ChildSiddhiAppInfo(
+                "simple-group-2-1",
+                hardCodedApp2,
+                null,
+                1,
+                false,
+                false);
+        childSiddhiAppInfos.add(childSiddhiAppInfo1);
+        childSiddhiAppInfos.add(childSiddhiAppInfo2);
+        return childSiddhiAppInfos;
+    }
+
+    public static void main(String[] args) {
+        ChildSiddhiAppsHandler childSiddhiAppsHandler = new ChildSiddhiAppsHandler();
+        List<ChildSiddhiAppInfo> childApps = childSiddhiAppsHandler.getHardCodedChildSiddhiApps();
+        List<ChildSiddhiAppInfo> resourceApps = childSiddhiAppsHandler.detectSiddhiQueryElements(childApps);
+    }
+
+    private List<ChildSiddhiAppInfo> detectSiddhiQueryElements(List<ChildSiddhiAppInfo> childSiddhiApps) {
+        SiddhiResourceRequirementDetectorsHolder siddhiResourceRequirementDetectorsHolder =
+                new SiddhiResourceRequirementDetectorsHolder();
+        siddhiResourceRequirementDetectorsHolder.init();
+        List<ChildSiddhiAppInfo> childSiddhiAppInfos = new ArrayList<>();
+
+        for (ChildSiddhiAppInfo childSiddhiAppInfo : childSiddhiApps) {
+            List<ResourceRequirement> resourceRequirements =
+                    siddhiResourceRequirementDetectorsHolder.detectResourceRequirements(childSiddhiAppInfo.getContent());
+            childSiddhiAppInfos.add(
+                    new ChildSiddhiAppInfo(
+                            childSiddhiAppInfo.getName(),
+                            childSiddhiAppInfo.getContent(),
+                            resourceRequirements,
+                            1,
+                            false,
+                            false));
+        }
+
+        return childSiddhiAppInfos;
     }
 
     private List<ChildSiddhiAppInfo> extractSiddhiQueryElements(List<SiddhiQueryGroup> siddhiQueryGroups) {

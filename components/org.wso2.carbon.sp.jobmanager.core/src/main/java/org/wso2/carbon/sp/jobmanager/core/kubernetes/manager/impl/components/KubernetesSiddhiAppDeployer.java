@@ -67,6 +67,8 @@ public class KubernetesSiddhiAppDeployer implements KubernetesChildAppDeployer {
     @Override
     public boolean deploy(DeploymentInfo deployment) {
         Response resourceResponse = null;
+        System.out.println("Attempting Deployment for: " +
+                deployment.getChildAppInfo().getName() + " on: " + deployment.getWorkerPodInfo().getIp());
         try {
             resourceResponse = ResourceServiceFactory
                     .getResourceHttpsClient(
@@ -74,8 +76,10 @@ public class KubernetesSiddhiAppDeployer implements KubernetesChildAppDeployer {
                                     deployment.getWorkerPodInfo().getIp(), "9443"),
                             "admin", "admin") // TODO remove hardcoded
                     .postSiddhiApp(deployment.getChildAppInfo().getContent());
+            System.out.println("Resource Response:" + resourceResponse);
             if (resourceResponse != null) {
-                if (resourceResponse.status() == 200) {
+                if (resourceResponse.status() == 200 || resourceResponse.status() == 201 ||
+                        resourceResponse.status() == 409) { // Allow already existing Siddhi app conflict
                     return true;
                 }
             }
@@ -85,6 +89,7 @@ public class KubernetesSiddhiAppDeployer implements KubernetesChildAppDeployer {
             return false;
         } finally {
             if (resourceResponse != null) {
+                System.out.println("Closing Resource Response");
                 resourceResponse.close();
             }
         }

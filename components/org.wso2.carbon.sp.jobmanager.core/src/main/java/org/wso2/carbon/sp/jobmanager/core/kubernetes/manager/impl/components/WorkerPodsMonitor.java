@@ -23,7 +23,7 @@ public class WorkerPodsMonitor implements GenericWorkerPodsMonitor {
             resourceResponse = ResourceServiceFactory
                     .getResourceHttpsClient(
                             Constants.PROTOCOL + HTTPSClientUtil.generateURLHostPort(pod.getIp(), "9443"),
-                            "admin", "admin") // TODO remove hardcoded
+                            "admin", "admin")
                     .getWorkerPodMetrics();
 
             if (resourceResponse != null) {

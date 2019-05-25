@@ -19,6 +19,8 @@
 
 package org.wso2.carbon.sp.jobmanager.core.api;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,6 +29,7 @@ import org.wso2.carbon.analytics.msf4j.interceptor.common.AuthenticationIntercep
 import org.wso2.carbon.sp.jobmanager.core.factories.KubernetesManagerApiServiceFactory;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete.DeploymentInfo;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete.WorkerPodInfo;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.impl.deserializers.DeserializersRegisterer;
 import org.wso2.msf4j.Microservice;
 import org.wso2.msf4j.Request;
 import org.wso2.msf4j.interceptor.annotation.RequestInterceptor;
@@ -34,6 +37,8 @@ import org.wso2.msf4j.interceptor.annotation.RequestInterceptor;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -65,13 +70,26 @@ public class KubernetesManagerApi implements Microservice {
         return kubernetesManagerApi.getWorkerPodMetrics(workerPods);
     }
 
+//    @POST
+//    @Path("/worker-pods/deployments")
+//    @Consumes({"application/json"})
+//    @Produces({"application/json"})
+//    public Response updateDeployments(@ApiParam(value = "Siddhi app deployments", required = true)
+//                                                  List<DeploymentInfo> deployments) throws NotFoundException {
+//        Object o = null;
+//        return kubernetesManagerApi.updateDeployments(deployments);
+//    }
+
     @POST
     @Path("/worker-pods/deployments")
-    @Consumes({"application/json"})
+    @Consumes({"text/plain"})
     @Produces({"application/json"})
     public Response updateDeployments(@ApiParam(value = "Siddhi app deployments", required = true)
-                                                  List<DeploymentInfo> deployments) throws NotFoundException {
-        return kubernetesManagerApi.updateDeployments(deployments);
+                                              String deployments) throws NotFoundException {
+        Gson gson = DeserializersRegisterer.getGsonBuilder().disableHtmlEscaping().create();
+        Type listType = new TypeToken<ArrayList<DeploymentInfo>>(){}.getType();
+        List<DeploymentInfo> deploymentInfos = gson.fromJson(deployments, listType);
+        return kubernetesManagerApi.updateDeployments(deploymentInfos);
     }
 
     @POST
