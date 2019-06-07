@@ -20,6 +20,7 @@
 package org.wso2.carbon.sp.jobmanager.core.api;
 
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete.DeploymentInfo;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete.ManagerServiceInfo;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete.WorkerPodInfo;
 
 import javax.ws.rs.core.Response;
@@ -30,12 +31,13 @@ import java.util.List;
  */
 
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen",
-        date = "2018-01-29T08:19:07.148Z")
+        date = "2019-01-29T08:19:07.148Z")
 public abstract class KubernetesManagerApiService {
 
     public abstract Response getWorkerPodMetrics(List<WorkerPodInfo> workerPods) throws NotFoundException;
 
     public abstract Response updateDeployments(List<DeploymentInfo> deployments) throws NotFoundException;
 
-    public abstract Response getChildSiddhiAppInfos(String userDefinedSiddhiApp) throws NotFoundException;
+    public abstract Response getChildSiddhiAppInfos(String userDefinedSiddhiApp, String kafkaIp, String kafkaPort)
+            throws NotFoundException;
 }

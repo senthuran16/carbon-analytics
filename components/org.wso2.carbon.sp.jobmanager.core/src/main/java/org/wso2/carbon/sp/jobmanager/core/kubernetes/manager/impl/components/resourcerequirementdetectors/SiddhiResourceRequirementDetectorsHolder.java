@@ -19,10 +19,11 @@ public class SiddhiResourceRequirementDetectorsHolder implements ResourceRequire
     private List<SiddhiResourceRequirementDetector> siddhiResourceRequirementDetectors = new ArrayList<>();
 
     /**
-     * Registers known requirement detectors
+     * Registers known requirement detectors. Any newly created resource requirement detector should be added here.
      */
     public void init() {
         siddhiResourceRequirementDetectors.add(new MySQLStoreDetector());
+        // siddhiResourceRequirementDetectors.add(new FooDetector()); // TODO add other detectors
     }
 
     /**
@@ -36,9 +37,14 @@ public class SiddhiResourceRequirementDetectorsHolder implements ResourceRequire
         SiddhiAppRuntime siddhiAppRuntime = new SiddhiManager().createSiddhiAppRuntime(siddhiApp);
         List<ResourceRequirement> resourceRequirements = new ArrayList<>();
         for (SiddhiResourceRequirementDetector siddhiResourceRequirementDetector : siddhiResourceRequirementDetectors) {
-            resourceRequirements.add(
-                    siddhiResourceRequirementDetector.generateResourceRequirement(
-                            siddhiApp, siddhiAppRuntime, siddhiAppString));
+            ResourceRequirement resourceRequirement =
+                    siddhiResourceRequirementDetector
+                            .generateResourceRequirement(siddhiApp, siddhiAppRuntime, siddhiAppString);
+            if (resourceRequirement != null) {
+                resourceRequirements.add(
+                        siddhiResourceRequirementDetector.generateResourceRequirement(
+                                siddhiApp, siddhiAppRuntime, siddhiAppString));
+            }
         }
         return resourceRequirements;
     }

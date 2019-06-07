@@ -28,10 +28,12 @@ import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.analytics.msf4j.interceptor.common.AuthenticationInterceptor;
 import org.wso2.carbon.sp.jobmanager.core.factories.KubernetesManagerApiServiceFactory;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete.DeploymentInfo;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete.ManagerServiceInfo;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete.WorkerPodInfo;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.impl.deserializers.DeserializersRegisterer;
 import org.wso2.msf4j.Microservice;
 import org.wso2.msf4j.Request;
+import org.wso2.msf4j.formparam.FormDataParam;
 import org.wso2.msf4j.interceptor.annotation.RequestInterceptor;
 
 import javax.ws.rs.*;
@@ -70,15 +72,16 @@ public class KubernetesManagerApi implements Microservice {
         return kubernetesManagerApi.getWorkerPodMetrics(workerPods);
     }
 
-//    @POST
-//    @Path("/worker-pods/deployments")
-//    @Consumes({"application/json"})
-//    @Produces({"application/json"})
-//    public Response updateDeployments(@ApiParam(value = "Siddhi app deployments", required = true)
-//                                                  List<DeploymentInfo> deployments) throws NotFoundException {
-//        Object o = null;
-//        return kubernetesManagerApi.updateDeployments(deployments);
-//    }
+    @POST
+    @Path("/siddhi-app")
+    @Consumes({"application/x-www-form-urlencoded"})
+    @Produces({"application/json"})
+    public Response getChildSiddhiAppInfos(@FormDataParam(value = "userDefinedSiddhiApp") String userDefinedSiddhiApp,
+                                           @FormDataParam(value = "kafkaIp") String kafkaIp,
+                                           @FormDataParam(value = "kafkaPort") String kafkaPort)
+            throws NotFoundException {
+        return kubernetesManagerApi.getChildSiddhiAppInfos(userDefinedSiddhiApp, kafkaIp, kafkaPort);
+    }
 
     @POST
     @Path("/worker-pods/deployments")
@@ -90,19 +93,6 @@ public class KubernetesManagerApi implements Microservice {
         Type listType = new TypeToken<ArrayList<DeploymentInfo>>(){}.getType();
         List<DeploymentInfo> deploymentInfos = gson.fromJson(deployments, listType);
         return kubernetesManagerApi.updateDeployments(deploymentInfos);
-    }
-
-    @POST
-    @Path("/siddhi-app")
-    @Consumes({"text/plain"})
-    @Produces({"application/json"})
-//    @Consumes({"application/x-www-form-urlencoded"})
-//    @Produces({"application/x-www-form-urlencoded"})
-    public Response getChildSiddhiAppInfos(@ApiParam(value = "User defined Siddhi app", required = true)
-                                              String userDefinedSiddhiApp) throws NotFoundException {
-//        String siddhiAppString = new String(Base64.getDecoder().decode(userDefinedSiddhiApp), StandardCharsets.UTF_8);
-        return kubernetesManagerApi.getChildSiddhiAppInfos(userDefinedSiddhiApp);
-//        return kubernetesManagerApi.getChildSiddhiAppInfos(userDefinedSiddhiApp);
     }
 
     @GET

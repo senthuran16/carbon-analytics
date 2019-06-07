@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.wso2.carbon.sp.jobmanager.core.bean.ZooKeeperConfig;
 import org.wso2.carbon.sp.jobmanager.core.internal.ServiceDataHolder;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.constants.ProjectConstants;
 import org.wso2.carbon.sp.jobmanager.core.topology.InputStreamDataHolder;
 import org.wso2.carbon.sp.jobmanager.core.topology.OutputStreamDataHolder;
 import org.wso2.carbon.sp.jobmanager.core.topology.PublishingStrategyDataHolder;
@@ -70,7 +71,8 @@ public class KafkaSiddhiAppCreator extends AbstractSiddhiAppCreator {
     private void processOutputStreams(String siddhiAppName, String groupName, List<SiddhiQuery> queryList,
                                       Collection<OutputStreamDataHolder> outputStreams) {
         Map<String, String> sinkValuesMap = new HashMap<>();
-        String bootstrapServerURL = ServiceDataHolder.getDeploymentConfig().getBootstrapURLs();
+//        String bootstrapServerURL = ServiceDataHolder.getDeploymentConfig().getBootstrapURLs();
+        String bootstrapServerURL = ProjectConstants.getKafkaURL();
         sinkValuesMap.put(ResourceManagerConstants.BOOTSTRAP_SERVER_URL, bootstrapServerURL);
         for (OutputStreamDataHolder outputStream : outputStreams) {
             Map<String, String> sinkList = new HashMap<>();
@@ -115,7 +117,7 @@ public class KafkaSiddhiAppCreator extends AbstractSiddhiAppCreator {
             Map<String, String> queryValuesMap = new HashMap<>(1);
             queryValuesMap.put(outputStream.getStreamName(), StringUtils.join(sinkList.values(), "\n"));
             updateQueryList(queryList, queryValuesMap);
-            createTopicPartitions(topicParallelismMap);
+//            createTopicPartitions(topicParallelismMap);
         }
     }
 
@@ -215,7 +217,8 @@ public class KafkaSiddhiAppCreator extends AbstractSiddhiAppCreator {
     private void processInputStreams(String siddhiAppName, String groupName, List<SiddhiQuery> queryList,
                                      Collection<InputStreamDataHolder> inputStreams) {
         Map<String, String> sourceValuesMap = new HashMap<>();
-        String bootstrapServerURL = ServiceDataHolder.getDeploymentConfig().getBootstrapURLs();
+//        String bootstrapServerURL = ServiceDataHolder.getDeploymentConfig().getBootstrapURLs();
+        String bootstrapServerURL = ProjectConstants.getKafkaURL();
         sourceValuesMap.put(ResourceManagerConstants.BOOTSTRAP_SERVER_URL, bootstrapServerURL);
         for (InputStreamDataHolder inputStream : inputStreams) {
             SubscriptionStrategyDataHolder subscriptionStrategy = inputStream.getSubscriptionStrategy();

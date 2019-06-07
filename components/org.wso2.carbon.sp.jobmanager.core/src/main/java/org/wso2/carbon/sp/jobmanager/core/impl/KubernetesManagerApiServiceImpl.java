@@ -27,6 +27,7 @@ import org.wso2.carbon.sp.jobmanager.core.api.KubernetesManagerApiService;
 import org.wso2.carbon.sp.jobmanager.core.api.ManagersApiService;
 import org.wso2.carbon.sp.jobmanager.core.api.NotFoundException;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete.DeploymentInfo;
+import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete.ManagerServiceInfo;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete.WorkerPodInfo;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.models.concrete.WorkerPodMetrics;
 import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.impl.components.ChildSiddhiAppsHandler;
@@ -74,8 +75,12 @@ public class KubernetesManagerApiServiceImpl extends KubernetesManagerApiService
     }
 
     @Override
-    public Response getChildSiddhiAppInfos(String userDefinedSiddhiApp) throws NotFoundException {
+    public Response getChildSiddhiAppInfos(String userDefinedSiddhiApp, String kafkaIp, String kafkaPort)
+            throws NotFoundException {
         ChildSiddhiAppsHandler childSiddhiAppsHandler = new ChildSiddhiAppsHandler();
-        return Response.ok().entity(childSiddhiAppsHandler.getChildAppInfos(userDefinedSiddhiApp)).build();
+        return Response
+                .ok()
+                .entity(childSiddhiAppsHandler.getChildAppInfos(userDefinedSiddhiApp, kafkaIp, kafkaPort))
+                .build();
     }
 }

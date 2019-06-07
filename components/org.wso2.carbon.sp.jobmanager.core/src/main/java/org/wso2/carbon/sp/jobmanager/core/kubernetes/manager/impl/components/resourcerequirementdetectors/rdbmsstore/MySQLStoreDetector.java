@@ -12,8 +12,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Detects MySQL RDBMS Store requirement from a Siddhi application
+ */
 public class MySQLStoreDetector extends SiddhiResourceRequirementDetector {
-    // TODO user has to look at these and tag the resource deployment
+    // TODO user has to look at these and tag the resource deployment. This should be provided to the user
     public static final String STORE_RDBMS_MYSQL_KEY = "store-rdbms-mysql";
     public static final String STORE_RDBMS_MYSQL_VALUE = "true";
 

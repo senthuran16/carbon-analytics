@@ -11,7 +11,7 @@ import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.component
 import org.wso2.carbon.sp.jobmanager.core.util.HTTPSClientUtil;
 
 /**
- * Monitors the worker pods in the Kubernetes cluster and provides their metrics information
+ * Monitors the worker pods and provides their metrics information
  */
 public class WorkerPodsMonitor implements GenericWorkerPodsMonitor {
     private static final Logger LOG = Logger.getLogger(WorkerPodsMonitor.class);

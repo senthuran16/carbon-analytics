@@ -4,6 +4,9 @@ import org.wso2.carbon.sp.jobmanager.core.kubernetes.manager.framework.component
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.query.api.SiddhiApp;
 
+/**
+ * Represents a Siddhi resource requirements detector
+ */
 public abstract class SiddhiResourceRequirementDetector
         implements ResourceRequirementDetector<SiddhiApp, SiddhiAppRuntime> {
 
