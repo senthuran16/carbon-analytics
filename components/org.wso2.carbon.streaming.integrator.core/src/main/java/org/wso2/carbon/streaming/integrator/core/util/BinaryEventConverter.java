@@ -95,7 +95,6 @@ public class BinaryEventConverter {
                     if (data[i] instanceof String) {
                         try {
                             aData = URLEncoder.encode(data[i].toString(), HAConstants.DEFAULT_CHARSET);
-
                         } catch (UnsupportedEncodingException e) {
                             log.error("Error occurred while encoding the data using UTF-8 ", e);
                         }
@@ -118,7 +117,6 @@ public class BinaryEventConverter {
                 if (data[i] instanceof String) {
                     try {
                         aData = URLEncoder.encode(data[i].toString(), HAConstants.DEFAULT_CHARSET);
-
                     } catch (UnsupportedEncodingException e) {
                         log.error("Error occurred  while encoding the data using UTF-8 ", e);
                     }
