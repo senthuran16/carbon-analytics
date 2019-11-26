@@ -19,12 +19,14 @@ package org.wso2.carbon.streaming.integrator.core.ha.tcp;
 
 
 import org.apache.log4j.Logger;
+import org.wso2.carbon.streaming.integrator.core.ha.util.HAConstants;
 import org.wso2.carbon.streaming.integrator.core.util.BinaryMessageConverterUtil;
-import io.siddhi.core.event.Event;
+import org.wso2.siddhi.core.event.Event;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
@@ -37,14 +39,12 @@ public class SiddhiEventConverter {//todo
     static final Logger LOG = Logger.getLogger(SiddhiEventConverter.class);
     private static int count = 0;
 
-
     public static ByteBuffer decompress(ByteBuffer byteBuffer) throws IOException, DataFormatException {
         //byte[] dataBytes = Base64.decode(data);
         Inflater inflater = new Inflater();
         inflater.setInput(byteBuffer.array());
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream(byteBuffer.array().length);
         byte[] buffer = new byte[byteBuffer.array().length];
-        //System.out.printf("REEEE            "+byteBuffer.array().length);
         while (!inflater.finished()) {
             int count = inflater.inflate(buffer);
             outputStream.write(buffer, 0, count);
@@ -80,7 +80,8 @@ public class SiddhiEventConverter {//todo
                         if (stringSize == 0) {
                             objects[i] = null;
                         } else {
-                            objects[i] = BinaryMessageConverterUtil.getString(byteBuffer, stringSize);
+                            objects[i] = URLDecoder.decode(BinaryMessageConverterUtil.getString(byteBuffer, stringSize),
+                                    HAConstants.DEFAULT_CHARSET);
                         }
                         break;
                     case "DOUBLE":
@@ -91,6 +92,9 @@ public class SiddhiEventConverter {//todo
                         break;
                     case "BOOL":
                         objects[i] = byteBuffer.get() == 1;
+                        break;
+                    case "OBJECT":
+                        byteBuffer.getInt();
                         break;
                     default:
                         // will not occur
