@@ -125,7 +125,7 @@ define(['require', 'lodash', 'jquery', 'constants'],
                  * @param extension Extension object.
                  */
                 this.getExtensionRepresentation = function (extension) {
-                    return `<td><span>${extension.extensionInfo.displayName}</span></td>`;
+                    return (`<td class='file-dialog-label'>${extension.extensionInfo.displayName}</td>`);
                 };
 
                 /**
@@ -144,9 +144,8 @@ define(['require', 'lodash', 'jquery', 'constants'],
                         if (buttonActionText) {
                             tr = $('<tr key="' + key + '">' +
                                 selfScope.getExtensionRepresentation(extension) +
-                                '<td id="status">' + status + '&nbsp; &nbsp;<a data-toggle="modal"' +
-                                ' id="' + key + '"><i class="fw' +
-                                ' fw-info"></i></a></td>' +
+                                '<td id="status" class="file-dialog-label">' + status + '&nbsp; &nbsp;' +
+                                '<a data-toggle="modal" id="' + key + '"><i class="fw fw-info"></i></a></td>' +
                                 '<td><button' +
                                 ' class="btn btn-block btn' +
                                 ' btn-primary">' + buttonActionText + '</button></td></tr>');
@@ -154,7 +153,7 @@ define(['require', 'lodash', 'jquery', 'constants'],
                             selfScope.bindInstallationButtonAction(tr, extension, selfScope.handleInstallationCallback);
                         } else {
                             tr = $('<tr key="' + key + '">' + selfScope.getExtensionRepresentation(extension) +
-                                '<td id="status">' + status +
+                                '<td id="status" class="file-dialog-label">' + status +
                                 '&nbsp; &nbsp;<a data-toggle="modal"' +
                                 ' id="' + key + '"><i class="fw fw-info"></i></a></td><td></td></tr>');
                             selfScope.createManuallyInstallableExtensionModal(extension, key, tr, selfScope);
@@ -162,12 +161,13 @@ define(['require', 'lodash', 'jquery', 'constants'],
                     } else {
                         if (buttonActionText) {
                             tr = $('<tr key="' + key + '">' + selfScope.getExtensionRepresentation(extension) +
-                            '<td id="status">' + status + '</td><td><button class="btn btn-block btnn btn-primary">' +
+                                '<td id="status" class="file-dialog-label">' + status +
+                                '</td><td><button class="btn btn-block btnn btn-primary">' +
                                 buttonActionText + '</button></td></tr>');
                             selfScope.bindInstallationButtonAction(tr, extension, selfScope.handleInstallationCallback);
                         } else {
                             tr = $('<tr key="' + key + '">' + selfScope.getExtensionRepresentation(extension) +
-                                '<td id="status">' + status + '</td><td></td></tr>');
+                                '<td id="status" class="file-dialog-label">' + status + '</td><td></td></tr>');
                         }
                     }
                     return tr;
@@ -206,7 +206,7 @@ define(['require', 'lodash', 'jquery', 'constants'],
                  */
                 this.renderExtensionLoadingRow = function (extension, key, actionStatus, selfScope) {
                     return $('<tr key="' + key + '">' + selfScope.getExtensionRepresentation(extension) +
-                    '<td id="status">' + actionStatus + '</td>' +
+                    '<td id="status" class="file-dialog-label">' + actionStatus + '</td>' +
                         '<td style="text-align:center"><a class="fw-loader5 fw-spin"></a></td></tr>');
                 },
 
@@ -253,7 +253,7 @@ define(['require', 'lodash', 'jquery', 'constants'],
                  */
                 this.renderRestartRequiredExtensionRow = function (extension, key) {
                     var tr = $('<tr key="' + key + '">' + this.getExtensionRepresentation(extension) +
-                        '<td id="status">Restart Required</td><td></td></tr>');
+                        '<td id="status" class="file-dialog-label">Restart Required</td><td></td></tr>');
                     return tr;
                 },
 
