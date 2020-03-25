@@ -230,6 +230,8 @@ define(["ace/ace", "jquery", "./constants", "./utils", "./completion-engine", ".
                         if (Date.now() - self.state.lastEdit >= constants.SERVER_SIDE_VALIDATION_DELAY - 100) {
                             // Check for semantic errors by sending a validate request to the server
                             self.checkForSemanticErrors();
+                            // Check for extension usages in the Siddhi app
+                            self.checkForExtensionUsage();
                         }
                     }, constants.SERVER_SIDE_VALIDATION_DELAY);
                 }
@@ -446,6 +448,124 @@ define(["ace/ace", "jquery", "./constants", "./utils", "./completion-engine", ".
                     success: callback,
                     error: errorCallback
                 });
+            }
+
+            // TODO Add doc comment
+            self.checkForExtensionUsage = function() {
+                var editorText = aceEditor.getValue();
+                submitToServerForExtensionUsageDetection(
+                    editorText,
+                    processExtensionUsageDetection,
+                    function (error) {
+                        console.log("Error Response", error); // TODO implement
+                    }
+                );
+            };
+
+            // TODO add doc comment
+            function submitToServerForExtensionUsageDetection(siddhiAppBody, callback, errorCallback) {
+                // TODO implement properly
+                if (siddhiAppBody === "") {
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: window.location.protocol + "//" + window.location.host + "/siddhi-extensions/siddhi-app-usages",
+                    data: window.btoa(siddhiAppBody),
+                    success: callback,
+                    error: errorCallback
+                });
+            }
+
+            function processExtensionUsageDetection(usedExtensions) {
+                console.log("Used Extensions", usedExtensions); // TODO implement
+                for (var extensionId in usedExtensions) {
+                    if (usedExtensions.hasOwnProperty(extensionId)) {
+                        var extension = usedExtensions[extensionId];
+                        if (extension.extensionStatus.extensionStatus === "NOT_INSTALLED" ||
+                            extension.extensionStatus.extensionStatus === "PARTIALLY_INSTALLED") {
+                            produceInstallPopup(extensionId, extension);
+                        }
+                    }
+                }
+            }
+
+            function produceInstallPopup(extensionId, extensionConfig) {
+                // TODO seems validation comes from every open tab. Restrict to currently open
+                console.log(`Install ${extensionId}`, extensionConfig);
+                console.log('test');
+
+                // for (var usage of extensionConfig.usages) {
+                //     var lineNumber = usage.usingSiddhiElement.queryContextStartIndex[0] - 1;
+                //     // aceEditor.renderer.$gutterLayer.$cells[lineNumber]
+                //     // aceEditor.renderer.$gutterLayer.$cells[lineNumber].textNode.appendData(extensionId);
+                // }
+
+                // TODO Only first usage for now
+                var suspect = extensionConfig.usages[0];
+                var lineNumber = suspect.usingSiddhiElement.queryContextStartIndex[0] - 1;
+
+                var word1 = getRandomWord(lineNumber);
+                var highlight1 = {};
+
+                highlight1.update = customUpdateWithOverlay.call(
+                    highlight1,
+                    'marker1',
+                    word1.range,
+                    'bottom',
+                    'Lorem Ipsum Popover',
+                    'Lorem ipsum dolor sit ',
+                    false
+                );
+
+                var marker1 = aceEditor.session.addDynamicMarker(highlight1);
+            }
+
+            function getRandomWord(lineNumber) {
+                var lines = aceEditor.getValue().split('\n');
+                var randomLine = lines[lineNumber];
+                var randomWord = randomLine.split(',')[0];
+                var range = new Range(randomLine[0], randomWord[0], randomLine[0], randomWord[0]+randomWord[1].length);
+                // range.start = aceEditor.getSession().doc.createAnchor(range.start);
+                // range.end = aceEditor.getSession().doc.createAnchor(range.end);
+                range.start = aceEditor.getSession().doc.createAnchor(0);
+                range.end = aceEditor.getSession().doc.createAnchor(4);
+                let word = randomWord[1];
+                return {range, word};
+            }
+
+            function customUpdateWithOverlay(markerClass, markerRange, overlayPlacement, overlayTitle, overlayContent, overrideWidth) {
+                return function (html, markerLayer, session, config) {
+                    // Use the helper method above to get the marker's HTML as a string (how Ace normally does it)
+                    let markerHTML = "<div><h2>TestTest</h2></div>";
+                    // Use jQuery to parse that HTML into an actual DOM element
+                    let markerElement = $.parseHTML(markerHTML)[0];
+                    // From here, we can manipulate the DOM element however we so choose
+                    // In this case, we use it as a root for ReactDOM and use
+                    // react-bootstrap components to render a popover
+        //             ReactDOM.render(
+        //             <markerpopup ref="{(popup)" ==""> this.popup = popup}
+        //         overlayTarget={markerElement}
+        //         overlayPlacement={overlayPlacement}
+        //             >
+        //             <popover placement="{overlayPlacement}" title="{overlayTitle}" style="{overrideWidth" ?="" {maxwidth:="" '100%'}="" :="" {}}="">
+        //         {overlayContent}
+        //         </popover>
+        //         </markerpopup>,
+        //     markerElement
+        // );
+                    $(markerElement).css( 'pointer-events', 'auto');
+                    // Since we have the actual DOM element, we can bind event handlers to it
+                    $(markerElement).mouseenter(() => {
+                        // this.popup.setState({show: true});
+                        console.log("Mouse enter on marker element")
+                    });
+
+                    // Finally we append the element to the marker layer's DOM as a child
+                    // Since the marker layer is now using insertAdjacentHTML with this
+                    // custom build, the child is retained
+                    markerLayer.element.appendChild(markerElement);
+                };
             }
 
             return self;
