@@ -25,13 +25,9 @@ import io.siddhi.core.util.persistence.IncrementalPersistenceStore;
 import io.siddhi.core.util.persistence.PersistenceStore;
 import io.siddhi.core.util.statistics.StatisticsManager;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.analytics.permissions.PermissionManager;
@@ -44,6 +40,7 @@ import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.si.metrics.core.SPMetricsFactory;
 import org.wso2.carbon.si.metrics.core.internal.SPMetricsDataHolder;
+import org.wso2.carbon.siddhi.extensions.installer.core.internal.SiddhiExtensionsInstallerMicroservice;
 import org.wso2.carbon.streaming.integrator.common.EventStreamService;
 import org.wso2.carbon.streaming.integrator.common.HAStateChangeListener;
 import org.wso2.carbon.streaming.integrator.common.SiddhiAppRuntimeService;
@@ -59,6 +56,7 @@ import org.wso2.carbon.streaming.integrator.core.persistence.PersistenceManager;
 import org.wso2.carbon.streaming.integrator.core.persistence.beans.PersistenceConfigurations;
 import org.wso2.carbon.streaming.integrator.core.persistence.exception.PersistenceStoreConfigurationException;
 import org.wso2.carbon.streaming.integrator.core.persistence.util.PersistenceConstants;
+import org.wso2.msf4j.Microservice;
 
 import java.io.File;
 import java.util.Map;
@@ -82,6 +80,7 @@ public class ServiceComponent {
     private static final Logger log = LoggerFactory.getLogger(ServiceComponent.class);
     private ServiceRegistration streamServiceRegistration;
     private ServiceRegistration siddhiAppRuntimeServiceRegistration;
+//    private ServiceRegistration siddhiExtensionsInstallerServiceRegistration;
     private ScheduledFuture<?> scheduledFuture = null;
     private ScheduledExecutorService scheduledExecutorService = null;
     private boolean clusterComponentActivated;
@@ -200,6 +199,8 @@ public class ServiceComponent {
                 new CarbonEventStreamService(), null);
         siddhiAppRuntimeServiceRegistration = bundleContext.registerService(SiddhiAppRuntimeService.class
                 .getCanonicalName(), new CarbonSiddhiAppRuntimeService(), null);
+//        siddhiExtensionsInstallerServiceRegistration = bundleContext.registerService(
+//            Microservice.class.getCanonicalName(), new SiddhiExtensionsInstallerMicroservice(), null);
 
         NodeInfo nodeInfo = new NodeInfo(DeploymentMode.SINGLE_NODE, configProvider.getConfigurationObject(
                 CarbonConfiguration.class).getId());
@@ -212,6 +213,26 @@ public class ServiceComponent {
         if (clusterComponentActivated) {
             setUpClustering(StreamProcessorDataHolder.getClusterCoordinator());
         }
+
+
+
+//        bundleContext.registerService(SiddhiExtensionsInstallerMicroservice.class.getName(),
+//            new SiddhiExtensionsInstallerMicroservice(), null);
+
+//        ServiceReference extensionsInstallerMicroserviceReference =
+//            bundleContext.getServiceReference(SiddhiExtensionsInstallerMicroservice.class.getName());
+//        if (extensionsInstallerMicroserviceReference != null) {
+//            SiddhiExtensionsInstallerMicroservice extensionsInstallerMicroservice =
+//                (SiddhiExtensionsInstallerMicroservice)bundleContext
+//                    .getService(extensionsInstallerMicroserviceReference);
+//            if (extensionsInstallerMicroservice != null) {
+//                System.out.println(extensionsInstallerMicroservice.sayHello());
+//            } else {
+//                System.err.println("Extensions Installer Microservice not found");
+//            }
+//        } else {
+//            System.err.println("Extensions Installer Microservice reference not found");
+//        }
     }
 
     /**
@@ -242,6 +263,7 @@ public class ServiceComponent {
 
         streamServiceRegistration.unregister();
         siddhiAppRuntimeServiceRegistration.unregister();
+//        siddhiExtensionsInstallerServiceRegistration.unregister();
     }
 
     /**
@@ -443,6 +465,30 @@ public class ServiceComponent {
 
     protected void unregisterHAStateChangeListener(HAStateChangeListener haStateChangeListener) {
         StreamProcessorDataHolder.removeHAStateChangeListener(haStateChangeListener);
+    }
+
+    @Reference(
+        name = "siddhi-extensions-installer",
+        service = Microservice.class,
+        cardinality = ReferenceCardinality.MANDATORY,
+        policy = ReferencePolicy.DYNAMIC,
+        unbind = "unsetExtensionsInstallerMicroservice"
+    )
+    protected void setExtensionsInstallerMicroservice(Microservice microservice) {
+        System.out.println("setExtensionsInstallerMicroservice called");
+        if (microservice instanceof SiddhiExtensionsInstallerMicroservice) {
+            System.out.println("Castable");
+            StreamProcessorDataHolder.setExtensionsInstallerMicroservice(
+                (SiddhiExtensionsInstallerMicroservice)microservice);
+            System.out.println("Casted");
+        }
+        System.out.println("setExtensionsInstallerMicroservice ended");
+    }
+
+    protected void unsetExtensionsInstallerMicroservice(Microservice microservice) {
+        if (microservice instanceof SiddhiExtensionsInstallerMicroservice) {
+            StreamProcessorDataHolder.setExtensionsInstallerMicroservice(null);
+        }
     }
 
 }

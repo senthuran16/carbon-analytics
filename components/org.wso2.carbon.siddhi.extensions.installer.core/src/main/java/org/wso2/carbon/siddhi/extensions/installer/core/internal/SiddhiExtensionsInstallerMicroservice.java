@@ -57,6 +57,7 @@ import static org.wso2.carbon.siddhi.extensions.installer.core.util.ResponseEnti
  * Exposes Siddhi Extensions Installer as a micro-service.
  */
 @Component(
+    name = "siddhi-extensions-installer",
     service = Microservice.class,
     immediate = true
 )
@@ -67,7 +68,8 @@ public class SiddhiExtensionsInstallerMicroservice implements Microservice {
 
     private Map<String, ExtensionConfig> extensionConfigs;
 
-    public SiddhiExtensionsInstallerMicroservice() {
+    public SiddhiExtensionsInstallerMicroservice() throws Exception {
+        System.out.println("SiddhiExtensionsInstallerMicroservice Constructor"); // TODO remove
         // Prevents instantiation.
     }
 
@@ -235,6 +237,22 @@ public class SiddhiExtensionsInstallerMicroservice implements Microservice {
         }
     }
 
+    public void hackyTest(String siddhiApp) { // TODO this is just here for testing
+        SiddhiAppExtensionUsageDetector siddhiAppExtensionUsageDetector =
+            new SiddhiAppExtensionUsageDetectorImpl(extensionConfigs);
+        try {
+            Map<String, Map<String, Object>> statuses =
+                siddhiAppExtensionUsageDetector.getUsedExtensionStatuses(siddhiApp);
+            LOGGER.info("Hacky Method got status keyset size as: " + statuses.keySet().size());
+        } catch (ExtensionsInstallerException e) {
+            LOGGER.error("Hacky method met an error", e);
+        }
+    }
+
+    public String sayHello() {
+        return "Hello World";
+    }
+
     /**
      * This is the activation method of SiddhiExtensionsInstallerMicroservice.
      * This will be called when its references are satisfied.
@@ -244,6 +262,8 @@ public class SiddhiExtensionsInstallerMicroservice implements Microservice {
      */
     @Activate
     protected void start(BundleContext bundleContext) throws Exception {
+        // TODO moved this to constructor
+        System.out.println("SiddhiExtensionsInstallerMicroservice @activate hit");
         extensionConfigs = ConfigMapper.loadAllExtensionConfigs(ExtensionsInstallerConstants.CONFIG_FILE_LOCATION);
     }
 

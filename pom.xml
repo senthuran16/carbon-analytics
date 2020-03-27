@@ -36,9 +36,9 @@
         <module>components/org.wso2.carbon.editor.log.appender</module>
         <module>components/org.wso2.carbon.siddhi.editor.core</module>
         <module>components/org.wso2.carbon.siddhi.extensions.installer.core</module>
-        <module>components/org.wso2.carbon.business.rules.templates.editor.core</module>
+<!--        <module>components/org.wso2.carbon.business.rules.templates.editor.core</module>-->
         <module>components/org.wso2.carbon.business.rules.core</module>
-        <module>components/org.wso2.carbon.business.rules.web</module>
+<!--        <module>components/org.wso2.carbon.business.rules.web</module>-->
         <module>components/org.wso2.carbon.si.coordination.listener</module>
         <module>components/org.wso2.carbon.si.metrics.core</module>
         <module>components/org.wso2.carbon.streaming.integrator.statistics</module>
@@ -55,9 +55,9 @@
         <module>features/org.wso2.carbon.event.simulator.core.feature</module>
         <module>features/org.wso2.carbon.siddhi.editor.core.feature</module>
         <module>features/org.wso2.carbon.siddhi.extensions.installer.core.feature</module>
-        <module>features/org.wso2.carbon.business.rules.templates.editor.core.feature</module>
+<!--        <module>features/org.wso2.carbon.business.rules.templates.editor.core.feature</module>-->
         <module>features/org.wso2.carbon.business.rules.core.feature</module>
-        <module>features/org.wso2.carbon.business.rules.web.feature</module>
+<!--        <module>features/org.wso2.carbon.business.rules.web.feature</module>-->
         <module>features/org.wso2.siddhi.feature</module>
         <module>features/org.wso2.carbon.si.metrics.core.feature</module>
         <module>features/org.wso2.carbon.si.coordination.listener.feature</module>
@@ -70,10 +70,10 @@
         <module>features/org.wso2.carbon.health.check.core.feature</module>
         <module>features/org.wso2.siddhi.parser.service.feature</module>
 
-        <module>components/si-tooling-distribution</module>
-        <module>components/si-distribution</module>
-        <module>components/streaming-integrator-osgi-tests</module>
-        <module>components/tooling-osgi-tests</module>
+<!--        <module>components/si-tooling-distribution</module>-->
+<!--        <module>components/si-distribution</module>-->
+<!--        <module>components/streaming-integrator-osgi-tests</module>-->
+<!--        <module>components/tooling-osgi-tests</module>-->
         <module>coverage-reports</module>
     </modules>
 

@@ -31,6 +31,7 @@ import org.wso2.carbon.config.provider.ConfigProvider;
 import org.wso2.carbon.databridge.commons.ServerEventListener;
 import org.wso2.carbon.datasource.core.api.DataSourceService;
 import org.wso2.carbon.kernel.CarbonRuntime;
+import org.wso2.carbon.siddhi.extensions.installer.core.internal.SiddhiExtensionsInstallerMicroservice;
 import org.wso2.carbon.streaming.integrator.common.HAStateChangeListener;
 import org.wso2.carbon.streaming.integrator.core.NodeInfo;
 import org.wso2.carbon.streaming.integrator.core.ha.HAManager;
@@ -63,6 +64,16 @@ public class StreamProcessorDataHolder {
     private static StatisticsConfiguration statisticsConfiguration;
     private static StatisticsManager statisticsManager;
     private static boolean isStatisticsEnabled;
+    private static SiddhiExtensionsInstallerMicroservice extensionsInstallerMicroservice;
+
+    public static void setExtensionsInstallerMicroservice(SiddhiExtensionsInstallerMicroservice microservice) {
+        extensionsInstallerMicroservice = microservice;
+    }
+
+    public static SiddhiExtensionsInstallerMicroservice getExtensionsInstallerMicroservice() {
+        return extensionsInstallerMicroservice;
+    }
+
     /**
      * List used to hold all the registered hs state change listeners.
      */
