@@ -58,7 +58,7 @@ import static org.wso2.carbon.siddhi.extensions.installer.core.util.ResponseEnti
  */
 @Component(
     name = "siddhi-extensions-installer",
-    service = Microservice.class,
+    service = {SiddhiExtensionsInstallerMicroservice.class, Microservice.class},
     immediate = true
 )
 @Path("/siddhi-extensions")

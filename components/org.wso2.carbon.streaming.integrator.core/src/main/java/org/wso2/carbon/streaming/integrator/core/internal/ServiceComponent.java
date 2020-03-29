@@ -469,26 +469,19 @@ public class ServiceComponent {
 
     @Reference(
         name = "siddhi-extensions-installer",
-        service = Microservice.class,
+        service = SiddhiExtensionsInstallerMicroservice.class,
         cardinality = ReferenceCardinality.MANDATORY,
         policy = ReferencePolicy.DYNAMIC,
         unbind = "unsetExtensionsInstallerMicroservice"
     )
-    protected void setExtensionsInstallerMicroservice(Microservice microservice) {
+    protected void setExtensionsInstallerMicroservice(SiddhiExtensionsInstallerMicroservice microservice) {
         System.out.println("setExtensionsInstallerMicroservice called");
-        if (microservice instanceof SiddhiExtensionsInstallerMicroservice) {
-            System.out.println("Castable");
-            StreamProcessorDataHolder.setExtensionsInstallerMicroservice(
-                (SiddhiExtensionsInstallerMicroservice)microservice);
-            System.out.println("Casted");
-        }
+        StreamProcessorDataHolder.setExtensionsInstallerMicroservice(microservice);
         System.out.println("setExtensionsInstallerMicroservice ended");
     }
 
-    protected void unsetExtensionsInstallerMicroservice(Microservice microservice) {
-        if (microservice instanceof SiddhiExtensionsInstallerMicroservice) {
-            StreamProcessorDataHolder.setExtensionsInstallerMicroservice(null);
-        }
+    protected void unsetExtensionsInstallerMicroservice(SiddhiExtensionsInstallerMicroservice microservice) {
+        StreamProcessorDataHolder.setExtensionsInstallerMicroservice(null);
     }
 
 }
