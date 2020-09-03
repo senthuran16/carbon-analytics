@@ -62,6 +62,14 @@ public class RePlayer {
         SiddhiAppRuntime siddhiAppRuntime = SiddhiErrorHandlerDataHolder.getInstance()
             .getSiddhiAppRuntimeService().getActiveSiddhiAppRuntimes().get(errorEntry.getSiddhiAppName());
         if (siddhiAppRuntime != null) {
+            // TODO ERROR HANDLER
+            /*
+            - Classify whether to replay on stream or table based on ErrorOccurrence
+            - Implement replay for 'replay on table' using tableHandler.
+            - All of the below are 'replay on stream' (using inputHandler).
+            - Timestamp should be got from the last complex event chunk
+            (todo things might not go well if we have auto increment and all)
+             */
             switch (errorEntry.getEventType()) {
                 case COMPLEX_EVENT:
                     rePlayComplexEvent(errorEntry, siddhiAppRuntime);
