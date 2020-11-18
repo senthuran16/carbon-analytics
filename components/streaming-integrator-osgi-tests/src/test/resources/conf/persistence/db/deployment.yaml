@@ -129,6 +129,16 @@ databridge.config:
         sslReceiverThreadPoolSize: '100'
         hostName: 0.0.0.0
 
+cluster.config:
+  enabled: false
+  groupId:  something
+  coordinationStrategyClass: org.wso2.carbon.cluster.coordinator.rdbms.RDBMSCoordinationStrategy
+  strategyConfig:
+    datasource: WSO2_ANALYTICS_DB
+    heartbeatInterval: 5000
+    heartbeatMaxRetry: 5
+    eventPollingInterval: 5000
+
   # Configuration of the Data Agents - to publish events through databridge
 data.agent.config:
     # Data agent configurations
@@ -253,7 +263,7 @@ wso2.securevault:
 
   # Persistence Configuration
 state.persistence:
-  enabled: true
+  enabled: false
   intervalInMin: 1
   revisionsToKeep: 2
   persistenceStore: org.wso2.carbon.streaming.integrator.core.persistence.DBPersistenceStore
@@ -271,12 +281,25 @@ wso2.datasources:
       definition:
         type: RDBMS
         configuration: # Empty parameters will be populated at runtime
-          jdbcUrl: jdbc:h2:./target/WSO2_ANALYTICS_DB
-          username: wso2carbon
-          password: wso2carbon
-          driverClassName: org.h2.Driver
+          jdbcUrl: jdbc:oracle:thin:@203.94.95.136:1521:ORCLCDB
+          username: wso2
+          password: wso2123
+          driverClassName: oracle.jdbc.driver.OracleDriver
           maxPoolSize: 50
           idleTimeout: 60000
-          connectionTestQuery: SELECT 1
+          connectionTestQuery: SELECT 1 FROM DUAL
           validationTimeout: 30000
           isAutoCommit: false
+
+siddhi:
+  properties:
+    partitionById: true
+    shardId: wso2-si
+
+  extensions:
+    -
+      extension:
+        name: cud
+        namespace: rdbms
+        properties:
+          perform.CUD.operations: true

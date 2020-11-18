@@ -129,16 +129,6 @@ databridge.config:
         sslReceiverThreadPoolSize: '100'
         hostName: 0.0.0.0
 
-cluster.config:
-  enabled: false
-  groupId:  something
-  coordinationStrategyClass: org.wso2.carbon.cluster.coordinator.rdbms.RDBMSCoordinationStrategy
-  strategyConfig:
-    datasource: WSO2_ANALYTICS_DB
-    heartbeatInterval: 5000
-    heartbeatMaxRetry: 5
-    eventPollingInterval: 5000
-
   # Configuration of the Data Agents - to publish events through databridge
 data.agent.config:
     # Data agent configurations
@@ -263,7 +253,7 @@ wso2.securevault:
 
   # Persistence Configuration
 state.persistence:
-  enabled: false
+  enabled: true
   intervalInMin: 1
   revisionsToKeep: 2
   persistenceStore: org.wso2.carbon.streaming.integrator.core.persistence.DBPersistenceStore
@@ -274,27 +264,45 @@ state.persistence:
 # Data Sources Configuration
 wso2.datasources:
   dataSources:
-    - name: WSO2_ANALYTICS_DB
-      description: The datasource used for Siddhi App state persistence
+    - name: WSO2AM_STATS_DB2
+      description: The datasource used for setting statistics to API Manager
       jndiConfig:
-        name: jdbc/WSO2_ANALYTICS_DB
+          name: jdbc/WSO2AM_STATS_DB2
       definition:
-        type: RDBMS
-        configuration: # Empty parameters will be populated at runtime
-          jdbcUrl:
-          username:
-          password:
-          driverClassName:
-          maxPoolSize: 50
-          idleTimeout: 60000
-          connectionTestQuery: SELECT 1
-          validationTimeout: 30000
-          isAutoCommit: false
+          type: RDBMS
+          configuration:
+            #jdbcUrl: 'jdbc:oracle:thin:@ldap://oid.bnymellon.net:3060/cn=OracleContext,dc=bnymellon,dc=net/omap1p01_rw'
+            jdbcUrl: 'jdbc:oracle:thin:@192.168.104.35:1521:ORCLCDB'
+            username: wso2
+            password: wso2123
+            driverClassName: oracle.jdbc.driver.OracleDriver
+            maxPoolSize: 30
+            minIdle: 1
+            idleTimeout: 60000
+            connectionTestQuery: SELECT 1 FROM DUAL
+            validationTimeout: 30000
+            isAutoCommit: false
+#    - name: WSO2_ANALYTICS_DB
+#      description: The datasource used for Siddhi App state persistence
+#      jndiConfig:
+#        name: jdbc/WSO2_ANALYTICS_DB
+#      definition:
+#        type: RDBMS
+#        configuration: # Empty parameters will be popiiulated at runtime
+#          jdbcUrl: jdbc:mysql://172.17.0.2:32910/WSO2_ANALYTICS_DB?useSSL=false
+#          username: root
+#          password: root
+#          driverClassName: com.mysql.jdbc.Driver
+#          maxPoolSize: 50
+#          idleTimeout: 60000
+#          connectionTestQuery: SELECT 1
+#          validationTimeout: 30000
+#          isAutoCommit: false
 
 siddhi:
-  properties:
-    partitionById: true
-    shardId: wso2-si
+  #  properties:
+  #    partitionById: true
+  #    shardId: wso2-si
 
   extensions:
     -

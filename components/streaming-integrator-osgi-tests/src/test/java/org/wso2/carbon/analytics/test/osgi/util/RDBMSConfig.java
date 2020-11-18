@@ -43,56 +43,73 @@ public class RDBMSConfig {
     private static final String JDBC_DRIVER_CLASS_POSTGRES = "org.postgresql.Driver";
     private static final String JDBC_DRIVER_CLASS_MSSQL = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 
+    private static final String CONNECTION_TEST_QUERY = "connectionTestQuery: SELECT 1";
+
     private static String url;
     private static String driverClassName;
     private static String username;
     private static String password;
 
     public static void createDatasource(String folderName) {
-        RDBMSType type = RDBMSType.valueOf(System.getenv("DATABASE_TYPE"));
-        username = System.getenv("DATABASE_USER");
-        password = System.getenv("DATABASE_PASSWORD");
-        String port = System.getenv("PORT");
-
-        switch (type) {
-            case MySQL:
-                String connectionUrlMysql = "jdbc:mysql://{{container.ip}}:{{container.port}}/WSO2_ANALYTICS_DB" +
-                        "?useSSL=false";
-                url = connectionUrlMysql.replace("{{container.ip}}", getIpAddressOfContainer()).
-                        replace("{{container.port}}", port);
-                driverClassName = JDBC_DRIVER_CLASS_NAME_MYSQL;
-                break;
-            case H2:
-                url = "jdbc:h2:./target/WSO2_ANALYTICS_DB";
-                driverClassName = JDBC_DRIVER_CLASS_NAME_H2;
-                username = "wso2carbon";
-                password = "wso2carbon";
-                break;
-            case POSTGRES:
-                String connectionUrlPostgres = "jdbc:postgresql://{{container.ip}}:{{container.port}}" +
-                        "/WSO2_ANALYTICS_DB";
-                url = connectionUrlPostgres.replace("{{container.ip}}", getIpAddressOfContainer()).
-                        replace("{{container.port}}", port);
-                driverClassName = JDBC_DRIVER_CLASS_POSTGRES;
-                break;
-            case ORACLE:
-                String connectionUrlOracle = "jdbc:oracle:thin:@{{container.ip}}:{{container.port}}/XE";
-                url = connectionUrlOracle.replace("{{container.ip}}", getIpAddressOfContainer()).
-                        replace("{{container.port}}", port);
-                driverClassName = JDBC_DRIVER_CLASS_NAME_ORACLE;
-                break;
-            case MSSQL:
-                String connectionUrlMsSQL = "jdbc:sqlserver://{{container.ip}}:{{container.port}};" +
-                        "databaseName=tempdb";
-                url = connectionUrlMsSQL.replace("{{container.ip}}", getIpAddressOfContainer()).
-                        replace("{{container.port}}", port);
-                driverClassName = JDBC_DRIVER_CLASS_MSSQL;
-                break;
-        }
-
+        username = "wso2";
+        password = "wso2123";
+        url = "jdbc:oracle:thin:@203.94.95.136:1521:ORCLCDB";
+        driverClassName = "oracle.jdbc.driver.OracleDriver";
         RDBMSConfig.updateDeploymentYaml(folderName);
 
+//        username = "wso2";
+//        password = "wso2123";
+//        url = "jdbc:mysql://localhost:3307/testdb?useSSL=false";
+//        driverClassName = "com.mysql.jdbc.Driver";
+//        RDBMSConfig.updateDeploymentYaml(folderName);
+
     }
+
+//    public static void createDatasource(String folderName) { // TODO uncomment
+//        RDBMSType type = RDBMSType.valueOf(System.getenv("DATABASE_TYPE"));
+//        username = System.getenv("DATABASE_USER");
+//        password = System.getenv("DATABASE_PASSWORD");
+//        String port = System.getenv("PORT");
+//
+//        switch (type) {
+//            case MySQL:
+//                String connectionUrlMysql = "jdbc:mysql://{{container.ip}}:{{container.port}}/WSO2_ANALYTICS_DB" +
+//                        "?useSSL=false";
+//                url = connectionUrlMysql.replace("{{container.ip}}", getIpAddressOfContainer()).
+//                        replace("{{container.port}}", port);
+//                driverClassName = JDBC_DRIVER_CLASS_NAME_MYSQL;
+//                break;
+//            case H2:
+//                url = "jdbc:h2:./target/WSO2_ANALYTICS_DB";
+//                driverClassName = JDBC_DRIVER_CLASS_NAME_H2;
+//                username = "wso2carbon";
+//                password = "wso2carbon";
+//                break;
+//            case POSTGRES:
+//                String connectionUrlPostgres = "jdbc:postgresql://{{container.ip}}:{{container.port}}" +
+//                        "/WSO2_ANALYTICS_DB";
+//                url = connectionUrlPostgres.replace("{{container.ip}}", getIpAddressOfContainer()).
+//                        replace("{{container.port}}", port);
+//                driverClassName = JDBC_DRIVER_CLASS_POSTGRES;
+//                break;
+//            case ORACLE:
+//                String connectionUrlOracle = "jdbc:oracle:thin:@{{container.ip}}:{{container.port}}/XE";
+//                url = connectionUrlOracle.replace("{{container.ip}}", getIpAddressOfContainer()).
+//                        replace("{{container.port}}", port);
+//                driverClassName = JDBC_DRIVER_CLASS_NAME_ORACLE;
+//                break;
+//            case MSSQL:
+//                String connectionUrlMsSQL = "jdbc:sqlserver://{{container.ip}}:{{container.port}};" +
+//                        "databaseName=tempdb";
+//                url = connectionUrlMsSQL.replace("{{container.ip}}", getIpAddressOfContainer()).
+//                        replace("{{container.port}}", port);
+//                driverClassName = JDBC_DRIVER_CLASS_MSSQL;
+//                break;
+//        }
+//
+//        RDBMSConfig.updateDeploymentYaml(folderName);
+//
+//    }
 
     private static void updateDeploymentYaml(String folderName) {
         try (BufferedReader br = new BufferedReader(new FileReader("src" + File.separator + "test" + File.separator +
@@ -116,6 +133,8 @@ public class RDBMSConfig {
                 if (line.contains(YAML_DATASOURCE_CONFIG_JDBC_DRIVER))
                     line = line.replace(YAML_DATASOURCE_CONFIG_JDBC_DRIVER, YAML_DATASOURCE_CONFIG_JDBC_DRIVER +
                             " " + driverClassName);
+                if (line.contains(CONNECTION_TEST_QUERY))
+                    line = line.replace(CONNECTION_TEST_QUERY, "connectionTestQuery: SELECT 1 FROM DUAL");
                 bw.write(line + "\n");
             }
         } catch (IOException e) {

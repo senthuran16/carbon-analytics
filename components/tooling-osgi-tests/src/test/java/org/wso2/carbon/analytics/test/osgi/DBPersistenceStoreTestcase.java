@@ -116,6 +116,7 @@ public class DBPersistenceStoreTestcase {
             log.error("Error in waiting for DataSources configuration file creation");
         }
         return new Option[]{
+            CarbonDistributionOption.debug(5005),
                 copyCarbonYAMLOption(),
                 copyOracleJDBCJar(),
                 CarbonDistributionOption.copyOSGiLibBundle(maven(

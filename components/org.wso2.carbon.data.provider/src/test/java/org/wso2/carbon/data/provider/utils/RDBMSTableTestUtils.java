@@ -77,7 +77,7 @@ public class RDBMSTableTestUtils {
     }
 
     private static DataSource initDataSource() {
-        String databaseType = System.getenv("DATABASE_TYPE");
+        String databaseType = System.getenv("DATABASE_TYPE"); // TODO SENTHURAN env var is set by IT profile
         if (databaseType == null) {
             databaseType = TestType.H2.toString();
         }
